@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:looksbeyond/pages/widgets/sign_in.dart';
 import 'package:looksbeyond/pages/widgets/sign_up.dart';
 import 'package:looksbeyond/theme.dart';
@@ -58,11 +59,9 @@ class _LoginPageState extends State<LoginPage>
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.only(top: 75.0),
-                    child: Image(
-                        height:
+                    child: SvgPicture.asset('assets/img/login_logo.svg', height:
                         MediaQuery.of(context).size.height > 800 ? 140.0 : 150,
-                        fit: BoxFit.fill,
-                        image: const AssetImage('assets/img/login_logo.png')),
+                          fit: BoxFit.fill,)
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 20.0),

@@ -252,14 +252,13 @@ class _SignInState extends State<SignIn> {
               // ),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
-                child: GestureDetector(
-                  onTap: () => CustomSnackBar(
-                      context, const Text('Google button pressed')),
-                  child: SignInButton(
-                    Buttons.Google,
-                    text: "Sign in with Google",
-                    onPressed: () {},
-                  ),
+                child: SignInButton(
+                  Buttons.Google,
+                  text: "Sign in with Google",
+                  onPressed: () {
+                    return CustomSnackBar(
+                        context, const Text('Google button pressed'));
+                  },
                 ),
               ),
             ],
