@@ -371,7 +371,7 @@ class _SignUpState extends State<SignUp> {
         prefs.setString('email', email);
 
         // Navigate to next screen upon successful sign-up
-        // Navigator.push...
+        Navigator.of(context).pushReplacementNamed('/dashboard');
       } catch (error) {
         // Handle sign-up errors
         print('Error signing up: $error');

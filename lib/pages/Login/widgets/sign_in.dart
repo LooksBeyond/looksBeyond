@@ -121,7 +121,7 @@ class _SignInState extends State<SignIn> {
                             ),
                           ),
                           onSubmitted: (_) {
-                            _toggleSignInButton();
+                             // _login();
                           },
                           textInputAction: TextInputAction.go,
                         ),
@@ -170,8 +170,9 @@ class _SignInState extends State<SignIn> {
                           fontFamily: 'WorkSansBold'),
                     ),
                   ),
-                  onPressed: () => CustomSnackBar(
-                      context, const Text('Login button pressed')),
+                  onPressed: (){
+                    _login();
+                  },
                 ),
               )
             ],
@@ -179,7 +180,9 @@ class _SignInState extends State<SignIn> {
           Padding(
             padding: const EdgeInsets.only(top: 10.0),
             child: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  _showForgotPasswordDialog(context);
+                },
                 child: const Text(
                   'Forgot Password?',
                   style: TextStyle(
@@ -270,9 +273,7 @@ class _SignInState extends State<SignIn> {
       );
 
       // Navigate to home page upon successful login
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => Dashboard()),
-      );
+      Navigator.of(context).pushReplacementNamed('/dashboard');
     } catch (error) {
       // Handle login errors
       print('Error logging in: $error');
@@ -289,5 +290,91 @@ class _SignInState extends State<SignIn> {
     });
   }
 
+
+  void _showForgotPasswordDialog(BuildContext context) {
+    String email = '';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Forgot Password"),
+          content: TextField(
+            onChanged: (value) {
+              email = value;
+            },
+            decoration: InputDecoration(
+              hintText: "Enter your email",
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                _resetPassword(email, context);
+              },
+              child: Text("Reset Password"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _resetPassword(String email, BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      Navigator.of(context).pop();
+      _showSuccessDialog(context);
+    } catch (e) {
+      print("Error sending reset password email: $e");
+      _showErrorDialog(context);
+    }
+  }
+
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Success"),
+          content: Text("Password reset email sent successfully."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Error"),
+          content: Text("Failed to send password reset email. Please try again later."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
 }

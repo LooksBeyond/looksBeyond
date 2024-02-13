@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:looksbeyond/pages/Dashboard/dashboard.dart';
 import 'package:looksbeyond/pages/Login/loginPage.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -27,23 +26,29 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (user != null) {
       // User is already logged in, navigate to home page directly
-      _navigateToHome();
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        _navigateToHome();
+      });
     } else {
       // User is not logged in, navigate to login screen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => LoginPage()),
-      );
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        _navigateToLogin();
+      });
     }
   }
 
   void _navigateToHome() {
-    Navigator.of(context).pushReplacementNamed('/home');
+    Navigator.of(context).pushReplacementNamed('/dashboard');
+  }
+
+  void _navigateToLogin() {
+    Navigator.of(context).pushReplacementNamed('/login');
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
+      backgroundColor: Color(0xff000000),
         body: Container(
           child: Center(
             child: SvgPicture.asset(
@@ -53,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
           ),
         ),
-      ),
-    );
+      );
+
   }
 }
