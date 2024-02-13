@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:looksbeyond/pages/Dashboard/widgets/CategoryList.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key});
@@ -42,7 +43,10 @@ class _DashboardState extends State<Dashboard> {
               "User Email: $userEmail",
               style: TextStyle(fontSize: 18.0),
             ),
-            // Add more user information here as needed
+            SizedBox(height: 20.0),
+            Text("Categories"),
+            SizedBox(height: 10.0),
+            CategoryList()
           ],
         ),
       ),

@@ -39,6 +39,7 @@ dependencies:
   flutter_svg:
   flutter_signin_button: ^2.0.0
   shared_preferences: ^2.2.2
+  cached_network_image: ^3.3.1
   firebase_core:
   firebase_auth:
   cloud_firestore:
