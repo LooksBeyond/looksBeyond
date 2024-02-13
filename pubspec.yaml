@@ -38,6 +38,10 @@ dependencies:
   font_awesome_flutter:
   flutter_svg:
   flutter_signin_button: ^2.0.0
+  shared_preferences: ^2.2.2
+  firebase_core:
+  firebase_auth:
+  cloud_firestore:
 
 dev_dependencies:
   flutter_test:

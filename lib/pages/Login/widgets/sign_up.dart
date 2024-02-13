@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:looksbeyond/theme.dart';
 import 'package:looksbeyond/widgets/snackbar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -239,7 +242,7 @@ class _SignUpState extends State<SignUp> {
                     padding:
                     EdgeInsets.symmetric(vertical: 10.0, horizontal: 42.0),
                     child: Text(
-                      'SIGN UP',
+                      'REGISTER',
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 25.0,
@@ -302,24 +305,7 @@ class _SignUpState extends State<SignUp> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              // Padding(
-              //   padding: const EdgeInsets.only(top: 10.0, right: 40.0),
-              //   child: GestureDetector(
-              //     onTap: () => CustomSnackBar(
-              //         context, const Text('Facebook button pressed')),
-              //     child: Container(
-              //       padding: const EdgeInsets.all(15.0),
-              //       decoration: const BoxDecoration(
-              //         shape: BoxShape.circle,
-              //         color: Colors.white,
-              //       ),
-              //       child: const Icon(
-              //         FontAwesomeIcons.facebookF,
-              //         color: Color(0xFF0084ff),
-              //       ),
-              //     ),
-              //   ),
-              // ),
+
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: SignInButton(
@@ -339,7 +325,7 @@ class _SignUpState extends State<SignUp> {
   }
 
   void _toggleSignUpButton() {
-    CustomSnackBar(context, const Text('SignUp button pressed'));
+    _signUp();
   }
 
   void _toggleSignup() {
@@ -352,5 +338,47 @@ class _SignUpState extends State<SignUp> {
     setState(() {
       _obscureTextConfirmPassword = !_obscureTextConfirmPassword;
     });
+  }
+
+  void _signUp() async {
+    String name = signupNameController.text.trim();
+    String email = signupEmailController.text.trim();
+    String password = signupPasswordController.text.trim();
+    String confirmPassword = signupConfirmPasswordController.text.trim();
+
+    if (password == confirmPassword) {
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        // Save user data to Firestore
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .set({
+          'name': name,
+          'email': email,
+          'password': password
+        });
+
+        // Save user data to cache memory using shared_preferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('uid', userCredential.user!.uid);
+        prefs.setString('name', name);
+        prefs.setString('email', email);
+
+        // Navigate to next screen upon successful sign-up
+        // Navigator.push...
+      } catch (error) {
+        // Handle sign-up errors
+        print('Error signing up: $error');
+      }
+    } else {
+      // Handle password mismatch error
+      print('Passwords do not match');
+    }
   }
 }

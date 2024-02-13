@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:looksbeyond/pages/widgets/sign_in.dart';
-import 'package:looksbeyond/pages/widgets/sign_up.dart';
+import './widgets/sign_in.dart';
+import './widgets/sign_up.dart';
 import 'package:looksbeyond/theme.dart';
 import 'package:looksbeyond/utils/bubble_indicator_painter.dart';
 

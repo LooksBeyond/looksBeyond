@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:looksbeyond/pages/Dashboard/dashboard.dart';
 import 'package:looksbeyond/theme.dart';
 import 'package:looksbeyond/widgets/snackbar.dart';
 
@@ -26,6 +28,12 @@ class _SignInState extends State<SignIn> {
     focusNodeEmail.dispose();
     focusNodePassword.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
   }
 
   @override
@@ -232,24 +240,6 @@ class _SignInState extends State<SignIn> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              // Padding(
-              //   padding: const EdgeInsets.only(top: 10.0, right: 40.0),
-              //   child: GestureDetector(
-              //     onTap: () => CustomSnackBar(
-              //         context, const Text('Facebook button pressed')),
-              //     child: Container(
-              //       padding: const EdgeInsets.all(15.0),
-              //       decoration: const BoxDecoration(
-              //         shape: BoxShape.circle,
-              //         color: Colors.white,
-              //       ),
-              //       child: const Icon(
-              //         FontAwesomeIcons.facebookF,
-              //         color: Color(0xFF0084ff),
-              //       ),
-              //     ),
-              //   ),
-              // ),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: SignInButton(
@@ -268,6 +258,27 @@ class _SignInState extends State<SignIn> {
     );
   }
 
+  void _login() async {
+    String email = loginEmailController.text.trim();
+    String password = loginPasswordController.text.trim();
+
+    try {
+      // Sign in with email and password
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Navigate to home page upon successful login
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => Dashboard()),
+      );
+    } catch (error) {
+      // Handle login errors
+      print('Error logging in: $error');
+    }
+  }
+
   void _toggleSignInButton() {
     CustomSnackBar(context, const Text('Login button pressed'));
   }
@@ -277,4 +288,6 @@ class _SignInState extends State<SignIn> {
       _obscureTextPassword = !_obscureTextPassword;
     });
   }
+
+
 }
