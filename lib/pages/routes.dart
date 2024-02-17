@@ -12,5 +12,5 @@ Map<String, WidgetBuilder> appRoutes = {
   '/dashboard': (context) => const BottomNavBarScreen(),
   '/booking_details': (context) => const BookingDetails(),
   '/feedback': (context) => const FeedbackPage(),
-  '/search': (context) => const SearchScreen(),
+  '/search': (context) => SearchScreen(),
 };
