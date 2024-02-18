@@ -9,8 +9,11 @@ import 'package:looksbeyond/pages/Dashboard/widgets/CategoryList.dart';
 import 'package:looksbeyond/pages/Dashboard/widgets/RecentlyViewedShops.dart';
 import 'package:looksbeyond/pages/FAQ/FAQScreen.dart';
 import 'package:looksbeyond/pages/Profile/Profile.dart';
+import 'package:looksbeyond/pages/Search/searchScreen.dart';
 
 class BottomNavBarScreen extends StatefulWidget {
+  static const String pageName = '/dashboard';
+
   const BottomNavBarScreen({super.key});
 
   @override
@@ -140,7 +143,7 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(height: 10.0),
               GestureDetector(
                   onTap: () {
-                    Navigator.of(context).pushNamed("/search");
+                    Navigator.of(context).pushNamed(SearchScreen.pageName);
                   },
                   child: Container(
                     width: double.infinity,

@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:looksbeyond/models/booking.dart';
+import 'package:looksbeyond/pages/Feedback/feedbackScreen.dart';
 
 class BookingDetails extends StatefulWidget {
+  static const String pageName = '/booking_details';
   const BookingDetails({super.key});
 
   @override
   State<BookingDetails> createState() => _BookingDetailsState();
 }
+
+
+
+
 
 class _BookingDetailsState extends State<BookingDetails> {
   @override
@@ -64,7 +70,7 @@ class _BookingDetailsState extends State<BookingDetails> {
                     onPressed: () {
                       _navigateToFeedbackPage(context, booking);
                     },
-                    child: Text(
+                    child: const Text(
                       'Write a Review',
                       style: TextStyle(fontSize: 16.0, color: Colors.blue),
                     ),
@@ -78,6 +84,6 @@ class _BookingDetailsState extends State<BookingDetails> {
   }
 
   void _navigateToFeedbackPage(BuildContext context, Booking booking) {
-    Navigator.pushNamed(context, '/feedback', arguments: booking);
+    Navigator.pushNamed(context, FeedbackPage.pageName, arguments: booking);
   }
 }

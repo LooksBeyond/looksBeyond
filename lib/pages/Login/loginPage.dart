@@ -6,6 +6,7 @@ import 'package:looksbeyond/theme.dart';
 import 'package:looksbeyond/utils/bubble_indicator_painter.dart';
 
 class LoginPage extends StatefulWidget {
+  static const String pageName = '/login';
   const LoginPage({Key? key}) : super(key: key);
 
   @override

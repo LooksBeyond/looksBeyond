@@ -4,6 +4,8 @@ import 'package:looksbeyond/pages/Search/widgets/recentlyViewedTile.dart';
 
 
 class SearchScreen extends StatefulWidget {
+  static const String pageName = '/search';
+
   @override
   State<SearchScreen> createState() => _SearchScreenState();
 }

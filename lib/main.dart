@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:looksbeyond/firebase_options.dart';
 import 'package:looksbeyond/pages/Login/loginPage.dart';
-import 'package:looksbeyond/pages/routes.dart';
+import 'package:looksbeyond/routes.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();

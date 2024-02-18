@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:looksbeyond/models/booking.dart';
 
 class FeedbackPage extends StatefulWidget {
+  static const String pageName = '/feedback';
 
 
   const FeedbackPage({

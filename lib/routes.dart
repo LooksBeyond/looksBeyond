@@ -8,9 +8,9 @@ import 'package:looksbeyond/pages/SplashScreen/SplashScreen.dart';
 
 Map<String, WidgetBuilder> appRoutes = {
   '/': (context) => const SplashScreen(),
-  '/login': (context) => const LoginPage(),
-  '/dashboard': (context) => const BottomNavBarScreen(),
-  '/booking_details': (context) => const BookingDetails(),
-  '/feedback': (context) => const FeedbackPage(),
-  '/search': (context) => SearchScreen(),
+  LoginPage.pageName: (context) => const LoginPage(),
+  BottomNavBarScreen.pageName: (context) => const BottomNavBarScreen(),
+  BookingDetails.pageName: (context) => const BookingDetails(),
+  FeedbackPage.pageName: (context) => const FeedbackPage(),
+  SearchScreen.pageName: (context) => SearchScreen(),
 };

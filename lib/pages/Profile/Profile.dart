@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:looksbeyond/pages/Login/loginPage.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -73,7 +74,7 @@ class _ProfileState extends State<Profile> {
   Future<void> _signOut(BuildContext context) async {
     try {
       await _auth.signOut();
-      Navigator.of(context).pushReplacementNamed('/login');
+      Navigator.of(context).pushReplacementNamed(LoginPage.pageName);
     } catch (e) {
       print("Error signing out: $e");
     }
