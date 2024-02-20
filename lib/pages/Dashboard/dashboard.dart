@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:looksbeyond/models/clients.dart';
+import 'package:looksbeyond/models/logged_in_user.dart';
 import 'package:looksbeyond/pages/Booking/booking.dart';
 import 'package:looksbeyond/pages/Dashboard/widgets/BrandsNearBy.dart';
 import 'package:looksbeyond/pages/Dashboard/widgets/CategoryList.dart';
@@ -10,6 +11,8 @@ import 'package:looksbeyond/pages/Dashboard/widgets/RecentlyViewedShops.dart';
 import 'package:looksbeyond/pages/FAQ/FAQScreen.dart';
 import 'package:looksbeyond/pages/Profile/Profile.dart';
 import 'package:looksbeyond/pages/Search/searchScreen.dart';
+import 'package:looksbeyond/provider/AuthProvider.dart';
+import 'package:provider/provider.dart';
 
 class BottomNavBarScreen extends StatefulWidget {
   static const String pageName = '/dashboard';
@@ -82,7 +85,8 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  late AuthenticationProvider authenticationProvider;
+  late LoggedInUser loggedInUser;
   List<Client> ClientList = [
     Client(
       name: 'Client A',
@@ -117,9 +121,14 @@ class _DashboardState extends State<Dashboard> {
   ];
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    authenticationProvider = Provider.of<AuthenticationProvider>(context,listen: false);
+    loggedInUser = authenticationProvider.loggedInUser!;
+  }
+  @override
   Widget build(BuildContext context) {
-    User? user = _auth.currentUser;
-    String? userEmail = user?.email;
 
     return Scaffold(
       appBar: AppBar(
@@ -137,7 +146,7 @@ class _DashboardState extends State<Dashboard> {
             children: [
               SizedBox(height: 20.0),
               Text(
-                "Hi, user name",
+                "Hi, ${loggedInUser.name}",
                 style: TextStyle(fontSize: 20),
               ),
               SizedBox(height: 10.0),

@@ -90,7 +90,7 @@ class _LoginPageState extends State<LoginPage>
                       children: <Widget>[
                         ConstrainedBox(
                           constraints: const BoxConstraints.expand(),
-                          child: SignIn(),
+                          child: const SignIn(),
                         ),
                         ConstrainedBox(
                           constraints: const BoxConstraints.expand(),

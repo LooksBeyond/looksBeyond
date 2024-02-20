@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:looksbeyond/pages/Dashboard/widgets/ServicesList.dart';
 
 
 class CategoryList extends StatelessWidget {
@@ -23,43 +24,48 @@ class CategoryList extends StatelessWidget {
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
               var category = snapshot.data!.docs[index];
-              return Padding(
-                padding: EdgeInsets.symmetric(horizontal: 2.0),
-                child: Stack(
-                  children: [
-                    Container(
-                      width: 120.0,
-                      height: 120.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: NetworkImage(category['img']),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      child: Container(
+              return GestureDetector(
+                  onTap: (){
+                    Navigator.of(context).pushNamed(ServicesList.pageName, arguments: category.id);
+                  },
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 2.0),
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 120.0,
+                        height: 120.0,
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.3),
-                          shape: BoxShape.circle
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: NetworkImage(category['img']),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.3),
+                            shape: BoxShape.circle
+                          ),
                         ),
                       ),
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      width: 120,
-                      child: Text(
-                        category['name'],
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16.0,
+                      Container(
+                        alignment: Alignment.center,
+                        width: 120,
+                        child: Text(
+                          category['name'],
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },

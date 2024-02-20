@@ -2,7 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:looksbeyond/firebase_options.dart';
 import 'package:looksbeyond/pages/Login/loginPage.dart';
+import 'package:looksbeyond/provider/AuthProvider.dart';
 import 'package:looksbeyond/routes.dart';
+import 'package:provider/provider.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,15 +20,18 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Looks Beyond',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
+    return ChangeNotifierProvider<AuthenticationProvider>(
+      create: (_)=>AuthenticationProvider(),
+      child: MaterialApp(
+        title: 'Looks Beyond',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          useMaterial3: true,
+        ),
+        initialRoute: '/',
+        routes: appRoutes,
+        // home: const LoginPage(),
       ),
-      initialRoute: '/',
-      routes: appRoutes,
-      // home: const LoginPage(),
     );
   }
 }

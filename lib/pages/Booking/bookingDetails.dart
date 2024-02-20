@@ -10,11 +10,8 @@ class BookingDetails extends StatefulWidget {
   State<BookingDetails> createState() => _BookingDetailsState();
 }
 
-
-
-
-
 class _BookingDetailsState extends State<BookingDetails> {
+
   @override
   Widget build(BuildContext context) {
     final Booking booking =

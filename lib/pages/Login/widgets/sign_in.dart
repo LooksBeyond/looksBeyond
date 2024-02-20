@@ -1,11 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:looksbeyond/models/logged_in_user.dart';
+import 'package:looksbeyond/pages/AdditonalInfo/AdditionalInfoScreen.dart';
 import 'package:looksbeyond/pages/Dashboard/dashboard.dart';
+import 'package:looksbeyond/provider/AuthProvider.dart';
 import 'package:looksbeyond/theme.dart';
 import 'package:looksbeyond/widgets/snackbar.dart';
+import 'package:provider/provider.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({Key? key}) : super(key: key);
@@ -23,6 +28,7 @@ class _SignInState extends State<SignIn> {
 
   bool _obscureTextPassword = true;
 
+  late AuthenticationProvider authProvider;
   @override
   void dispose() {
     focusNodeEmail.dispose();
@@ -34,6 +40,8 @@ class _SignInState extends State<SignIn> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+
   }
 
   @override
@@ -272,8 +280,28 @@ class _SignInState extends State<SignIn> {
         password: password,
       );
 
-      // Navigate to home page upon successful login
-      Navigator.of(context).pushReplacementNamed('/dashboard');
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+
+
+      if (userSnapshot.exists && userSnapshot.data() != null) {
+        // Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
+      await FirebaseFirestore.instance.collection('users').doc(userId).update({
+        'lastLoggedIn': DateTime.now().millisecondsSinceEpoch,
+      });
+
+        LoggedInUser? loggedInUser = await authProvider.initLoggedInUser(FirebaseAuth.instance.currentUser);
+        // Check if the required fields exist in the user document
+        if (loggedInUser!.address != "" && loggedInUser.age != 0 && loggedInUser.phoneNumber != "" && loggedInUser.profileImage != "") {
+          // User has all the necessary information, navigate to home page
+          Navigator.of(context).pushReplacementNamed(BottomNavBarScreen.pageName);
+        } else {
+          // User is missing some information, navigate to complete profile page
+          Navigator.of(context).pushReplacementNamed(AdditionalInfoScreen.pageName);
+        }
+      } else {
+        // User document does not exist, handle accordingly
+      }
     } catch (error) {
       // Handle login errors
       print('Error logging in: $error');

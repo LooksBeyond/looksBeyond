@@ -1,6 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:looksbeyond/models/logged_in_user.dart';
 import 'package:looksbeyond/pages/Login/loginPage.dart';
+import 'package:looksbeyond/provider/AuthProvider.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -11,11 +15,26 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  late AuthenticationProvider authenticationProvider;
+  late LoggedInUser loggedInUser;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    authenticationProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+    loggedInUser= authenticationProvider.loggedInUser!;
+  }
 
   @override
   Widget build(BuildContext context) {
-    User? user = _auth.currentUser;
-    String? userEmail = user?.email;
+    String? userEmail = loggedInUser.email;
+    String? userName = loggedInUser.name;
+    String? userPhone = loggedInUser.phoneNumber;
+    int? userAge = loggedInUser.age;
+    String? address = loggedInUser.address;
+    String userImg = loggedInUser.profileImage;
+
 
     return Scaffold(
       appBar: AppBar(
@@ -28,11 +47,11 @@ class _ProfileState extends State<Profile> {
           children: [
             CircleAvatar(
               radius: 50,
-              backgroundImage: AssetImage('assets/img/avatar.png'),
+              backgroundImage: NetworkImage(userImg),
             ),
             SizedBox(height: 20),
             Text(
-              'John Doe',
+              userName,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -48,20 +67,20 @@ class _ProfileState extends State<Profile> {
             SizedBox(height: 20),
             ListTile(
               leading: Icon(Icons.phone),
-              title: Text('123-456-7890'),
+              title: Text(userPhone),
             ),
             ListTile(
               leading: Icon(Icons.location_on),
-              title: Text('New York, USA'),
+              title: Text(address),
             ),
             ListTile(
-              leading: Icon(Icons.calendar_today),
-              title: Text('Joined: January 1, 2022'),
+              leading: Icon(Icons.supervised_user_circle_sharp),
+              title: Text(userAge.toString()),
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                _signOut(context);
+                authenticationProvider.signOut(context);
               },
               child: Text('Logout'),
             ),
@@ -69,14 +88,5 @@ class _ProfileState extends State<Profile> {
         ),
       ),
     );
-  }
-
-  Future<void> _signOut(BuildContext context) async {
-    try {
-      await _auth.signOut();
-      Navigator.of(context).pushReplacementNamed(LoginPage.pageName);
-    } catch (e) {
-      print("Error signing out: $e");
-    }
   }
 }

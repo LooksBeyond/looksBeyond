@@ -361,7 +361,9 @@ class _SignUpState extends State<SignUp> {
             .set({
           'name': name,
           'email': email,
-          'password': password
+          'password': password,
+          'firstLoggedIn': DateTime.now().millisecondsSinceEpoch,
+          'lastLoggedIn': DateTime.now().millisecondsSinceEpoch
         });
 
         // Save user data to cache memory using shared_preferences
