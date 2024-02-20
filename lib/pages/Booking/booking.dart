@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:looksbeyond/models/booking.dart';
+import 'package:looksbeyond/models/user_booking.dart';
 
 class BookingScreen extends StatefulWidget {
   const BookingScreen({super.key});
@@ -10,10 +10,10 @@ class BookingScreen extends StatefulWidget {
 }
 
 class _BookingScreenState extends State<BookingScreen> {
-  final List<Booking> bookings = [
-    Booking(id: '1', title: 'Spa Treatment', dateTime: 'Jan 20, 2024, 10:00 AM', status: Status.active, shopName: "Shop 1", stylist: "Stylist 1"),
-    Booking(id: '2', title: 'Haircut', dateTime: 'Jan 25, 2024, 2:30 PM', status: Status.completed, stylist: "Stylist 2", shopName: "Shop 2"),
-    Booking(id: '3', title: 'Manicure', dateTime: 'Jan 28, 2024, 4:00 PM', status: Status.refunded, stylist: "Stylist 3", shopName: "Shop 3"),
+  final List<UserBooking> bookings = [
+    // UserBooking(id: '1', title: 'Spa Treatment', dateTime: 'Jan 20, 2024, 10:00 AM', status: Status.active, brand: "Shop 1", stylist: "Stylist 1"),
+    // UserBooking(id: '2', title: 'Haircut', dateTime: 'Jan 25, 2024, 2:30 PM', status: Status.completed, stylist: "Stylist 2", brand: "Shop 2"),
+    // UserBooking(id: '3', title: 'Manicure', dateTime: 'Jan 28, 2024, 4:00 PM', status: Status.refunded, stylist: "Stylist 3", brand: "Shop 3"),
   ];
 
   @override
@@ -43,7 +43,7 @@ class _BookingScreenState extends State<BookingScreen> {
               ),
             ),
             subtitle: Text(
-              bookings[index].dateTime,
+              bookings[index].dateTime.toString(),
               style: TextStyle(
                 fontSize: 14.0,
                 color: Colors.grey[700],

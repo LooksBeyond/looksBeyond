@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:looksbeyond/models/booking.dart';
+import 'package:looksbeyond/models/user_booking.dart';
 
 class FeedbackPage extends StatefulWidget {
   static const String pageName = '/feedback';
@@ -20,7 +20,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
   @override
   Widget build(BuildContext context) {
-  final Booking booking = ModalRoute.of(context)!.settings.arguments as Booking;
+  final UserBooking booking = ModalRoute.of(context)!.settings.arguments as UserBooking;
     return Scaffold(
       appBar: AppBar(
         title: Text('Provide Feedback'),
@@ -41,7 +41,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             ),
             SizedBox(height: 10.0),
             Text(
-              'Brand: ${booking.shopName}',
+              'Brand: ${booking.brand}',
               style: TextStyle(fontSize: 16.0),
             ),
             SizedBox(height: 20.0),

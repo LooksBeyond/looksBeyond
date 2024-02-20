@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:looksbeyond/models/booking.dart';
+import 'package:looksbeyond/models/user_booking.dart';
 import 'package:looksbeyond/pages/Feedback/feedbackScreen.dart';
 
 class BookingDetails extends StatefulWidget {
@@ -14,8 +14,8 @@ class _BookingDetailsState extends State<BookingDetails> {
 
   @override
   Widget build(BuildContext context) {
-    final Booking booking =
-        ModalRoute.of(context)!.settings.arguments as Booking;
+    final UserBooking booking =
+        ModalRoute.of(context)!.settings.arguments as UserBooking;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -80,7 +80,7 @@ class _BookingDetailsState extends State<BookingDetails> {
     );
   }
 
-  void _navigateToFeedbackPage(BuildContext context, Booking booking) {
+  void _navigateToFeedbackPage(BuildContext context, UserBooking booking) {
     Navigator.pushNamed(context, FeedbackPage.pageName, arguments: booking);
   }
 }

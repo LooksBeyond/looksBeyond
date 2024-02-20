@@ -57,7 +57,7 @@ class _ServiceEmployeesState extends State<ServiceEmployees> {
               return ListTile(
                 onTap: () {
                   Navigator.of(context)
-                      .pushNamed(CreateBooking.pageName, arguments: {'employee': employee, 'serviceId': service.id});
+                      .pushNamed(CreateBooking.pageName, arguments: {'employee': employee, 'service': service});
                 },
                 title: Text(employee['name']),
                 leading: CircleAvatar(

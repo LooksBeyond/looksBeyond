@@ -26,6 +26,8 @@ class MyApp extends StatelessWidget {
         title: 'Looks Beyond',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          scaffoldBackgroundColor: Color(0xfffafbfb),
+          appBarTheme: AppBarTheme(backgroundColor: Color(0xfffafbfb)),
           useMaterial3: true,
         ),
         initialRoute: '/',

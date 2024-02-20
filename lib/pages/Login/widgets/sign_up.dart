@@ -4,8 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:looksbeyond/models/logged_in_user.dart';
+import 'package:looksbeyond/pages/AdditonalInfo/AdditionalInfoScreen.dart';
+import 'package:looksbeyond/pages/Dashboard/dashboard.dart';
+import 'package:looksbeyond/provider/AuthProvider.dart';
 import 'package:looksbeyond/theme.dart';
 import 'package:looksbeyond/widgets/snackbar.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUp extends StatefulWidget {
@@ -30,6 +35,9 @@ class _SignUpState extends State<SignUp> {
   TextEditingController signupConfirmPasswordController =
   TextEditingController();
 
+  late AuthenticationProvider authProvider;
+
+
   @override
   void dispose() {
     focusNodePassword.dispose();
@@ -41,6 +49,7 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
+    authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
     return Container(
       padding: const EdgeInsets.only(top: 23.0),
       child: Column(
@@ -372,8 +381,17 @@ class _SignUpState extends State<SignUp> {
         prefs.setString('name', name);
         prefs.setString('email', email);
 
-        // Navigate to next screen upon successful sign-up
-        Navigator.of(context).pushReplacementNamed('/dashboard');
+
+
+        LoggedInUser? loggedInUser = await authProvider.initLoggedInUser(userCredential.user);
+        if (loggedInUser!.address != "" && loggedInUser.age != 0 && loggedInUser.phoneNumber != "" && loggedInUser.profileImage != "") {
+          // User has all the necessary information, navigate to home page
+          Navigator.of(context).pushReplacementNamed(BottomNavBarScreen.pageName);
+        } else {
+          // User is missing some information, navigate to complete profile page
+          Navigator.of(context).pushReplacementNamed(AdditionalInfoScreen.pageName);
+        }
+
       } catch (error) {
         // Handle sign-up errors
         print('Error signing up: $error');
