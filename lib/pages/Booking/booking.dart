@@ -1,20 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:looksbeyond/models/user_booking.dart';
 
-class BookingScreen extends StatefulWidget {
-  const BookingScreen({super.key});
-
-  @override
-  State<BookingScreen> createState() => _BookingScreenState();
-}
-
-class _BookingScreenState extends State<BookingScreen> {
-  final List<UserBooking> bookings = [
-    // UserBooking(id: '1', title: 'Spa Treatment', dateTime: 'Jan 20, 2024, 10:00 AM', status: Status.active, brand: "Shop 1", stylist: "Stylist 1"),
-    // UserBooking(id: '2', title: 'Haircut', dateTime: 'Jan 25, 2024, 2:30 PM', status: Status.completed, stylist: "Stylist 2", brand: "Shop 2"),
-    // UserBooking(id: '3', title: 'Manicure', dateTime: 'Jan 28, 2024, 4:00 PM', status: Status.refunded, stylist: "Stylist 3", brand: "Shop 3"),
-  ];
+class BookingScreen extends StatelessWidget {
+  const BookingScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,35 +20,66 @@ class _BookingScreenState extends State<BookingScreen> {
           ),
         ),
       ),
-      body: ListView.builder(
-        itemCount: bookings.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: Image.asset('assets/img/avatar.png'),
-            title: Text(
-              bookings[index].title,
-              style: TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            subtitle: Text(
-              bookings[index].dateTime.toString(),
-              style: TextStyle(
-                fontSize: 14.0,
-                color: Colors.grey[700],
-              ),
-            ),
-            trailing: SvgPicture.asset('assets/img/booking_status.svg', color: _getStatusColor(bookings[index].status),height: 15,),
-            onTap: () {
-              Navigator.pushNamed(context, '/booking_details', arguments: bookings[index]);
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('bookings')
+            .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          final List<UserBooking> bookings = snapshot.data!.docs.map((doc) {
+            return UserBooking.fromFireStore(doc);
+          }).toList();
+
+          return ListView.builder(
+            itemCount: bookings.length,
+            itemBuilder: (context, index) {
+              final booking = bookings[index];
+              return ListTile(
+                leading: CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.orange,
+                  backgroundImage: NetworkImage(booking.empImage!),
+                ),
+                title: Text(
+                  booking.title,
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                subtitle: Text(
+                  booking.date.split(" ")[0].toString() + " at " + booking.timeSlot,
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                trailing: SvgPicture.asset(
+                  'assets/img/booking_status.svg',
+                  color: _getStatusColor(booking.status),
+                  height: 15,
+                ),
+                onTap: () {
+                  Navigator.pushNamed(context, '/booking_details',
+                      arguments: booking);
+                },
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                tileColor: index % 2 == 0 ? Colors.grey[200] : Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              );
             },
-            contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            tileColor: index % 2 == 0 ? Colors.grey[200] : Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
           );
         },
       ),
@@ -76,4 +98,6 @@ class _BookingScreenState extends State<BookingScreen> {
         return Colors.black;
     }
   }
+
+
 }

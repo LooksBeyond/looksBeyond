@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:looksbeyond/models/user_booking.dart';
+import 'package:looksbeyond/pages/Dashboard/dashboard.dart';
 
 class PaymentScreen extends StatefulWidget {
   static const String pageName = "/paymentScreen";
@@ -108,7 +109,39 @@ class _PaymentScreenState extends State<PaymentScreen> {
               Text("Payment Options", style: TextStyle(fontWeight: FontWeight.w500, fontSize: 17),),
               SizedBox(height: 10,),
               if(!Platform.isAndroid)
-                Container(
+                GestureDetector(
+                  onTap: (){
+                    _processPayment("Apple Pay", userBooking);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(5),
+                    margin: EdgeInsets.only(bottom: 15),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 7,
+                          offset: Offset(0, 3), // changes position of shadow
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      leading: Image.asset('assets/img/applePay.png', height: 35,),
+                      title: Text(
+                        'Apple Pay',
+                        style: TextStyle(color: Colors.black), // Change text color to white
+                      ),
+                    ),
+                  ),
+                ),
+              GestureDetector(
+                onTap: (){
+                  _processPayment("Google Pay", userBooking);
+                },
+                child: Container(
                   padding: EdgeInsets.all(5),
                   margin: EdgeInsets.only(bottom: 15),
                   decoration: BoxDecoration(
@@ -124,67 +157,81 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     ],
                   ),
                   child: ListTile(
-                    leading: Image.asset('assets/img/applePay.png', height: 35,),
+                    leading: Image.asset('assets/img/googlePay.png', height: 35,),
                     title: Text(
-                      'Apple Pay',
+                      'Google Pay',
                       style: TextStyle(color: Colors.black), // Change text color to white
                     ),
                   ),
                 ),
-              Container(
-                padding: EdgeInsets.all(5),
-
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 7,
-                      offset: Offset(0, 3), // changes position of shadow
+              ),
+              GestureDetector(
+                onTap: (){
+                  _processPayment("Credit Card", userBooking);
+                },
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 7,
+                        offset: Offset(0, 3), // changes position of shadow
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    leading: Icon(Icons.credit_card, size: 35,),
+                    title: Text(
+                      'Credit Card',
+                      style: TextStyle(color: Colors.black), // Change text color to white
                     ),
-                  ],
-                ),
-                child: ListTile(
-                  leading: Image.asset('assets/img/googlePay.png', height: 35,),
-                  title: Text(
-                    'Google Pay',
-                    style: TextStyle(color: Colors.black), // Change text color to white
+                    trailing: Container(
+                      width: 100,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(width:40,child: Image.asset("assets/img/visa.png")),
+                          Container(width:40,child: Image.asset("assets/img/mastercard.png"))
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
-              SizedBox(height: 20,),
               // Payment details input fields
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Use Credit Card", style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),),
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'Card Number'),
-                    keyboardType: TextInputType.number,
-                  ),
-                  SizedBox(height: 16.0),
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'Expiration Date'),
-                    keyboardType: TextInputType.datetime,
-                  ),
-                  SizedBox(height: 16.0),
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'CVV'),
-                    keyboardType: TextInputType.number,
-                  ),
-                  SizedBox(height: 32.0),
-                  // Button to initiate payment
-                  Container(
-                    alignment: Alignment.bottomRight,
-                    child: ElevatedButton(
-                      onPressed: _processPayment,
-                      child: Text('Pay Now'),
-                    ),
-                  ),
-                ],
-              ),
+              // Column(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     Text("Use Credit Card", style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),),
+              //     TextFormField(
+              //       decoration: InputDecoration(labelText: 'Card Number'),
+              //       keyboardType: TextInputType.number,
+              //     ),
+              //     SizedBox(height: 16.0),
+              //     TextFormField(
+              //       decoration: InputDecoration(labelText: 'Expiration Date'),
+              //       keyboardType: TextInputType.datetime,
+              //     ),
+              //     SizedBox(height: 16.0),
+              //     TextFormField(
+              //       decoration: InputDecoration(labelText: 'CVV'),
+              //       keyboardType: TextInputType.number,
+              //     ),
+              //     SizedBox(height: 32.0),
+              //     // Button to initiate payment
+              //     Container(
+              //       alignment: Alignment.bottomRight,
+              //       child: ElevatedButton(
+              //         onPressed: _processPayment,
+              //         child: Text('Pay Now'),
+              //       ),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),
@@ -192,7 +239,37 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  void _processPayment() {
-    // Implement payment processing logic here
+  void _processPayment(String provider, UserBooking userBooking) {
+    print("Payment button pressed, "+ provider);
+
+    // Create a map of booking data
+    Map<String, dynamic> bookingData = {
+      'title': userBooking.title,
+      'userId': userBooking.userId,
+      'dateTime': userBooking.dateTime,
+      'status': userBooking.status.name,
+      'brand': brand.id,
+      'isPaid': true,
+      'timeSlot': userBooking.timeSlot,
+      'date': userBooking.date,
+      'subtotal': userBooking.subtotal,
+      'total': userBooking.subtotal + totalTaxes,
+      'service': userBooking.service,
+      'taxes': totalTaxes,
+      'paidThrough': provider,
+      'employee': employee.id,
+      'empImage': employee['img'],
+      'review': "",
+    };
+
+    FirebaseFirestore.instance.collection('bookings').add(bookingData)
+        .then((value) {
+      print('Booking added successfully!');
+    }).catchError((error) {
+      print('Failed to add booking: $error');
+    });
+    
+    Navigator.of(context).popUntil(ModalRoute.withName(BottomNavBarScreen.pageName));
+
   }
 }

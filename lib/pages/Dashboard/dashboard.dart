@@ -1,8 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:looksbeyond/models/clients.dart';
+import 'package:looksbeyond/models/brand.dart';
 import 'package:looksbeyond/models/logged_in_user.dart';
 import 'package:looksbeyond/pages/Booking/booking.dart';
 import 'package:looksbeyond/pages/Dashboard/widgets/BrandsNearBy.dart';
@@ -87,49 +88,19 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   late AuthenticationProvider authenticationProvider;
   late LoggedInUser loggedInUser;
-  List<Client> ClientList = [
-    Client(
-      name: 'Client A',
-      address: 'Address of Client A',
-      imageUrl:
-          'https://www.emotivebrand.com/wp-content/uploads/2016/09/tumblr_o05v3eZmyT1ugn1wu_og_1280-1080x675.png',
-    ),
-    Client(
-      name: 'Client B',
-      address: 'Address of Client B',
-      imageUrl:
-          'https://www.emotivebrand.com/wp-content/uploads/2016/09/tumblr_o05v3eZmyT1ugn1wu_og_1280-1080x675.png',
-    ),
-    Client(
-      name: 'Client C',
-      address: 'Address of Client C',
-      imageUrl:
-          'https://www.emotivebrand.com/wp-content/uploads/2016/09/tumblr_o05v3eZmyT1ugn1wu_og_1280-1080x675.png',
-    ),
-    Client(
-      name: 'Client D',
-      address: 'Address of Client D',
-      imageUrl:
-          'https://www.emotivebrand.com/wp-content/uploads/2016/09/tumblr_o05v3eZmyT1ugn1wu_og_1280-1080x675.png',
-    ),
-    Client(
-      name: 'Client E',
-      address: 'Address of Client E',
-      imageUrl:
-          'https://www.emotivebrand.com/wp-content/uploads/2016/09/tumblr_o05v3eZmyT1ugn1wu_og_1280-1080x675.png',
-    ),
-  ];
+  List<Brand> ClientList = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    authenticationProvider = Provider.of<AuthenticationProvider>(context,listen: false);
+    authenticationProvider =
+        Provider.of<AuthenticationProvider>(context, listen: false);
     loggedInUser = authenticationProvider.loggedInUser!;
   }
+
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: SvgPicture.asset(
@@ -183,31 +154,52 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(height: 10.0),
               CategoryList(),
               SizedBox(height: 20.0),
-              Text("Recently Viewed"),
-              SizedBox(height: 10.0),
-              SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: ClientList.length,
-                  itemBuilder: (context, index) {
-                    return RecentlyViewedDashboard(client: ClientList[index]);
-                  },
-                ),
-              ),
+              // Text("Recently Viewed"),
+              // SizedBox(height: 10.0),
+              // SizedBox(
+              //   height: 100,
+              //   child: ListView.builder(
+              //     scrollDirection: Axis.horizontal,
+              //     itemCount: ClientList.length,
+              //     itemBuilder: (context, index) {
+              //       return RecentlyViewedDashboard(client: ClientList[index]);
+              //     },
+              //   ),
+              // ),
               SizedBox(height: 20.0),
-              Text("Popular Brands Nearby"),
+              Text("Popular Brands"),
               SizedBox(height: 10.0),
               //TODO: GET FROM FIREBASE
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                physics: NeverScrollableScrollPhysics(),
-                children:
-                    ClientList.map((client) => BrandsNearBy(client: client))
+              FutureBuilder<QuerySnapshot>(
+                future: FirebaseFirestore.instance.collection('brands').get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  }
+
+                  List<Brand> brands = snapshot.data!.docs.map((doc) {
+                    return Brand.fromFirebase(doc);
+                  }).toList();
+
+                  return GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    physics: NeverScrollableScrollPhysics(),
+                    children: brands
+                        .map((brand) => BrandsNearBy(brand: brand))
                         .toList(),
+                  );
+                },
               )
             ],
           ),

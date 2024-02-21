@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:looksbeyond/models/clients.dart';
+import 'package:looksbeyond/models/brand.dart';
+import 'package:looksbeyond/pages/BrandDisplay/BrandDisplayScreen.dart';
 
 class BrandsNearBy extends StatefulWidget {
-  final Client client;
-  const BrandsNearBy({super.key, required this.client});
+  final Brand brand;
+  const BrandsNearBy({super.key, required this.brand});
 
   @override
   State<BrandsNearBy> createState() => _BrandsNearByState();
@@ -31,7 +32,7 @@ class _BrandsNearByState extends State<BrandsNearBy> {
                       topRight: Radius.circular(10),
                     ),
                     child: Image.network(
-                      widget.client.imageUrl,
+                      widget.brand.imageUrl,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -60,15 +61,17 @@ class _BrandsNearByState extends State<BrandsNearBy> {
           Expanded(
             flex: 1,
             child: GestureDetector(
-              onTap: (){},
+              onTap: (){
+                Navigator.of(context).pushNamed(BrandDisplayScreen.pageName, arguments: widget.brand);
+              },
               child: Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.client.name, style: TextStyle(decoration: TextDecoration.underline),),
-                    Text(widget.client.address, style: TextStyle(color: Colors.grey, decoration: TextDecoration.underline),),
+                    Text(widget.brand.name, style: TextStyle(decoration: TextDecoration.underline),),
+                    Text(widget.brand.address, style: TextStyle(color: Colors.grey, decoration: TextDecoration.underline),),
                   ],
                 ),
               ),

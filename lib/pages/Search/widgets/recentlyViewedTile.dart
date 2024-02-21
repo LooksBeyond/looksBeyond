@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:looksbeyond/models/clients.dart';
+import 'package:looksbeyond/models/brand.dart';
 
 class RecentlyViewedSearch extends StatelessWidget {
-  final Client client;
+  final Brand client;
   const RecentlyViewedSearch(
       {super.key,
       required this.client,});

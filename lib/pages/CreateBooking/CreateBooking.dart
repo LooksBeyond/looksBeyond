@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:looksbeyond/models/user_booking.dart';
+import 'package:looksbeyond/pages/EmployeeInfo/EmployeeInfoScreen.dart';
 import 'package:looksbeyond/pages/Payment/PaymentScreen.dart';
 
 class CreateBooking extends StatefulWidget {
@@ -75,10 +76,11 @@ class _CreateBookingState extends State<CreateBooking> {
                               total: 0,
                               service: service.id,
                               id: "",
-                              title: service['name'] + " by " + employee['name'],
+                              title:
+                                  service['name'] + " by " + employee['name'],
                               dateTime: DateTime.now().millisecondsSinceEpoch,
                               status: Status.active,
-                              stylist: employee['name'],
+                              employee: employee['name'],
                               brand: brandSnapshot['brand']);
                           Navigator.of(context)
                               .pushNamed(PaymentScreen.pageName, arguments: {
@@ -87,6 +89,24 @@ class _CreateBookingState extends State<CreateBooking> {
                             "brand": brandSnapshot,
                             "service": service
                           });
+                        } else {
+                          showDialog(
+                              context: context,
+                              builder: (dialogcContext) {
+                                return Dialog(
+                                    backgroundColor: Colors.white,
+                                    child: Container(
+                                      height: 150,
+                                      width: 200,
+                                      child: Center(
+                                          child: Text(
+                                        "Select timeslot first. Thankyou.",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.red),
+                                      )),
+                                    ));
+                              });
                         }
                       },
                       child: Text(
@@ -270,7 +290,15 @@ class _CreateBookingState extends State<CreateBooking> {
                               employee["numberOfRatings"].toString() +
                               ")")
                         ],
-                      ), // Employee role
+                      ),
+                      trailing: TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pushNamed(
+                              EmployeeInfoScreen.pageName,
+                              arguments: employee);
+                        },
+                        child: Text("View More"),
+                      ),
                     ),
                     SizedBox(height: 20),
                     Row(

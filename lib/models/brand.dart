@@ -1,13 +1,34 @@
-class Client {
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class Brand {
+  final String id;
   final String name;
   final String address;
   final String imageUrl;
+  final List employees;
+  final String owner;
 
-  Client({
-    required this.name,
-    required this.address,
-    required this.imageUrl,
-  });
+  Brand(
+      {required this.id,
+      required this.name,
+      required this.address,
+      required this.imageUrl,
+      required this.employees,
+      required this.owner});
+
+  factory Brand.fromFirebase(DocumentSnapshot snapshot) {
+    var data = snapshot.data()! as Map<String, dynamic>;
+
+    var brand = Brand(
+        id: snapshot.id,
+        name: data['brand'],
+        address: data['address'],
+        imageUrl: data['logo'],
+        employees: data['employees'],
+        owner: data['owner']);
+
+    return brand;
+  }
 }
 
 // List<Client> ClientList = [

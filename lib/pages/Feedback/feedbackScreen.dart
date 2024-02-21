@@ -1,5 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:looksbeyond/models/logged_in_user.dart';
 import 'package:looksbeyond/models/user_booking.dart';
+import 'package:looksbeyond/provider/AuthProvider.dart';
+import 'package:provider/provider.dart';
 
 class FeedbackPage extends StatefulWidget {
   static const String pageName = '/feedback';
@@ -15,15 +20,28 @@ class FeedbackPage extends StatefulWidget {
 }
 
 class _FeedbackPageState extends State<FeedbackPage> {
+  late AuthenticationProvider authenticationProvider;
   double _rating = 0.0;
   TextEditingController _commentController = TextEditingController();
+  late UserBooking booking;
+  bool isReviewExist = false;
+  late LoggedInUser loggedInUser;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-  final UserBooking booking = ModalRoute.of(context)!.settings.arguments as UserBooking;
+  booking = ModalRoute.of(context)!.settings.arguments as UserBooking;
+  authenticationProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+  loggedInUser = authenticationProvider.loggedInUser!;
+  checkReviewExistence();
     return Scaffold(
       appBar: AppBar(
-        title: Text('Provide Feedback'),
+        title: Text(isReviewExist?"Edit Feedback":'Provide Feedback'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -36,7 +54,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             ),
             SizedBox(height: 10.0),
             Text(
-              'Stylist: ${booking.stylist}',
+              'Stylist: ${booking.employee}',
               style: TextStyle(fontSize: 16.0),
             ),
             SizedBox(height: 10.0),
@@ -89,11 +107,46 @@ class _FeedbackPageState extends State<FeedbackPage> {
     );
   }
 
+  void checkReviewExistence() async {
+    // Check if a review already exists for the current booking
+    QuerySnapshot reviewSnapshot = await FirebaseFirestore.instance
+        .collection('reviews')
+        .where('bookingId', isEqualTo: booking.id)
+        .limit(1)
+        .get();
+
+    setState(() {
+      isReviewExist = reviewSnapshot.docs.isNotEmpty;
+    });
+
+    if (isReviewExist) {
+      // If a review exists, populate the feedback fields with existing review data
+      DocumentSnapshot reviewDoc = reviewSnapshot.docs.first;
+      double existingRating = reviewDoc['rating'];
+      String existingComment = reviewDoc['comment'];
+
+      setState(() {
+        _rating = existingRating;
+        _commentController.text = existingComment;
+      });
+    }
+  }
+
   void _submitFeedback() {
     // Submit feedback logic
     double rating = _rating;
     String comment = _commentController.text;
 
+    FirebaseFirestore.instance.collection('reviews').add({
+      'userName': loggedInUser.name,
+      'bookingId': booking.id,
+      'rating': rating,
+      'comment': comment,
+      'timestamp': Timestamp.now(),
+      'empId': booking.employee,
+      'userId': FirebaseAuth.instance.currentUser!.uid,
+      'brandId': booking.brand,
+    });
 
     // After submitting, you can navigate back to the previous screen.
     Navigator.pop(context);

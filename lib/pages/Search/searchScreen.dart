@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:looksbeyond/models/clients.dart';
+import 'package:looksbeyond/models/brand.dart';
 import 'package:looksbeyond/pages/Search/widgets/recentlyViewedTile.dart';
 
 
@@ -13,32 +13,32 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   late final FocusNode _searchFocusNode;
 
-  List<Client> ClientList = [
-    Client(
-      name: 'Client A',
-      address: 'Address of Client A',
-      imageUrl: 'assets/img/avatar.png',
-    ),
-    Client(
-      name: 'Client B',
-      address: 'Address of Client B',
-      imageUrl: 'assets/img/avatar.png',
-    ),
-    Client(
-      name: 'Client C',
-      address: 'Address of Client C',
-      imageUrl: 'assets/img/avatar.png',
-    ),
-    Client(
-      name: 'Client D',
-      address: 'Address of Client D',
-      imageUrl: 'assets/img/avatar.png',
-    ),
-    Client(
-      name: 'Client E',
-      address: 'Address of Client E',
-      imageUrl: 'assets/img/avatar.png',
-    ),
+  List<Brand> ClientList = [
+    // Brand(
+    //   name: 'Client A',
+    //   address: 'Address of Client A',
+    //   imageUrl: 'assets/img/avatar.png',
+    // ),
+    // Brand(
+    //   name: 'Client B',
+    //   address: 'Address of Client B',
+    //   imageUrl: 'assets/img/avatar.png',
+    // ),
+    // Brand(
+    //   name: 'Client C',
+    //   address: 'Address of Client C',
+    //   imageUrl: 'assets/img/avatar.png',
+    // ),
+    // Brand(
+    //   name: 'Client D',
+    //   address: 'Address of Client D',
+    //   imageUrl: 'assets/img/avatar.png',
+    // ),
+    // Brand(
+    //   name: 'Client E',
+    //   address: 'Address of Client E',
+    //   imageUrl: 'assets/img/avatar.png',
+    // ),
   ];
 
   @override
