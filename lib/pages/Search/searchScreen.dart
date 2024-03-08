@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:looksbeyond/models/brand.dart';
 import 'package:looksbeyond/pages/Search/widgets/recentlyViewedTile.dart';
@@ -81,15 +82,38 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
           // List of recently viewed salons
-          Expanded(
-            child: ListView.builder(
-              itemCount: 5, // Number of recently viewed salons
-              itemBuilder: (context, index) {
-                // Replace this with your salon item widget
-                return RecentlyViewedSearch(client: ClientList[index]);
-              },
-            ),
+          FutureBuilder<QuerySnapshot>(
+            future: FirebaseFirestore.instance.collection('brands').get(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Error: ${snapshot.error}'),
+                );
+              }
+
+              List<Brand> brands = snapshot.data!.docs.map((doc) {
+                return Brand.fromFirebase(doc);
+              }).toList();
+
+              return Expanded(
+                child: ListView.builder(
+                  itemCount: brands.length, // Number of recently viewed salons
+                  itemBuilder: (context, index) {
+                    // Replace this with your salon item widget
+                    return RecentlyViewedSearch(client: brands[index]);
+                  },
+                ),
+              );
+            },
           ),
+
+
         ],
       ),
     );
