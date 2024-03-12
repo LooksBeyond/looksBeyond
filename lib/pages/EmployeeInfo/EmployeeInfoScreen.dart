@@ -1,8 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:looksbeyond/models/service.dart';
-
-//TODO: get the reviews and the brand name from firebase here.
 
 class EmployeeInfoScreen extends StatefulWidget {
   static const String pageName = "/employeeInfoScreen";
@@ -41,7 +40,8 @@ class _EmployeeInfoScreenState extends State<EmployeeInfoScreen> {
                   height: 230,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage(employee['img']),
+                      // Use CachedNetworkImage instead of NetworkImage
+                      image: CachedNetworkImageProvider(employee['img']),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -54,7 +54,8 @@ class _EmployeeInfoScreenState extends State<EmployeeInfoScreen> {
                     backgroundColor: Colors.white,
                     child: CircleAvatar(
                       radius: 60,
-                      backgroundImage: NetworkImage(employee['img']),
+                      // Use CachedNetworkImage instead of NetworkImage
+                      backgroundImage: CachedNetworkImageProvider(employee['img']),
                     ),
                   ),
                 ),

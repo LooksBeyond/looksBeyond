@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -72,7 +73,7 @@ class _CreateBookingState extends State<CreateBooking> {
                               isPaid: false,
                               timeSlot: _selectedTimeslot!,
                               date: _selectedDate.toString(),
-                              subtotal: employee['services'][service.id],
+                              subtotal: double.parse(employee['services'][service.id].toString()),
                               platformPrice: employee['services'][service.id] * 0.2,
                               total: 0,
                               service: service.id,
@@ -148,9 +149,13 @@ class _CreateBookingState extends State<CreateBooking> {
                             Container(
                               width: double.infinity,
                               height: 300,
-                              child: Image.network(
-                                brand![0]['logo'],
-                                fit: BoxFit.cover,
+                              child: CachedNetworkImage(
+                                imageUrl: brand[0]['logo'],
+                                placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                                errorWidget: (context, url, error) => Icon(Icons.error),
+                                imageBuilder: (context, imageProvider) => Image(
+                                  image: imageProvider,
+                                ),
                               ),
                             ),
                             Container(
@@ -263,9 +268,18 @@ class _CreateBookingState extends State<CreateBooking> {
                       style: TextStyle(fontSize: 17),
                     ),
                     ListTile(
-                      leading: CircleAvatar(
-                        // Placeholder image or actual employee image
-                        child: Icon(Icons.person),
+                      leading: Container(
+                        width: 50,
+                        height: 50,
+                        child: CachedNetworkImage(
+                          imageUrl: employee['img'],
+                          placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) => Icon(Icons.error),
+                          imageBuilder: (context, imageProvider) => CircleAvatar(
+                            radius: 25,
+                            backgroundImage: imageProvider,
+                          ),
+                        ),
                       ),
                       title: Text(employee['name']), // Employee name
                       subtitle: Row(

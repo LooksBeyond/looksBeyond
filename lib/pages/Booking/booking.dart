@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -43,10 +44,18 @@ class BookingScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final booking = bookings[index];
               return ListTile(
-                leading: CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.orange,
-                  backgroundImage: NetworkImage(booking.empImage!),
+                leading: Container(
+                  height: 60,
+                  width: 60,
+                  child: CachedNetworkImage(
+                    imageUrl: booking.empImage!,
+                    placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    imageBuilder: (context, imageProvider) => CircleAvatar(
+                      radius: 30,
+                      backgroundImage: imageProvider,
+                    ),
+                  ),
                 ),
                 title: Text(
                   booking.title,

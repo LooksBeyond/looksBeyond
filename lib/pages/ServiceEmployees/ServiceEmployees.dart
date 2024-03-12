@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -60,8 +61,17 @@ class _ServiceEmployeesState extends State<ServiceEmployees> {
                       .pushNamed(CreateBooking.pageName, arguments: {'employee': employee, 'service': service});
                 },
                 title: Text(employee['name']),
-                leading: CircleAvatar(
-                  backgroundImage: NetworkImage(employee['img']),
+                leading: Container(
+                  width: 45,
+                  height: 45,
+                  child: CachedNetworkImage(
+                    imageUrl: employee['img'],
+                    placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    imageBuilder: (context, imageProvider) => CircleAvatar(
+                      backgroundImage: imageProvider,
+                    ),
+                  ),
                 ),
                 subtitle: Row(
                   children: [

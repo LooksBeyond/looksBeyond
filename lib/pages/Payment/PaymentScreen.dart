@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:looksbeyond/models/user_booking.dart';
@@ -37,7 +38,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     brand = arguments["brand"];
     totalTaxes = userBooking.subtotal * 0.13;
 
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Payment'),
@@ -63,11 +63,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(
                             10), // Adjust the value as needed
-                        child: Image.network(
-                          brand['logo'],
+                        child: CachedNetworkImage(
+                          imageUrl: brand['logo'],
                           fit: BoxFit.cover,
                           height: 150,
                           width: double.infinity,
+                          placeholder: (context, url) => Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error),
                         ),
                       ),
                       SizedBox(
@@ -94,9 +99,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text("Subtotal: \$ "+userBooking.subtotal.toString()),
-                              Text("Taxes: \$ "+ totalTaxes.toStringAsFixed(2)),
-                              Text("Total: \$ "+(userBooking.subtotal + totalTaxes).toStringAsFixed(2), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                              Text("Subtotal: \$ " +
+                                  userBooking.subtotal.toString()),
+                              Text(
+                                  "Taxes: \$ " + totalTaxes.toStringAsFixed(2)),
+                              Text(
+                                "Total: \$ " +
+                                    (userBooking.subtotal + totalTaxes)
+                                        .toStringAsFixed(2),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 20),
+                              ),
                             ],
                           ),
                         ],
@@ -105,12 +118,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 10,),
-              Text("Payment Options", style: TextStyle(fontWeight: FontWeight.w500, fontSize: 17),),
-              SizedBox(height: 10,),
-              if(!Platform.isAndroid)
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                "Payment Options",
+                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 17),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              if (!Platform.isAndroid)
                 GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     _processPayment("Apple Pay", userBooking);
                   },
                   child: Container(
@@ -129,16 +149,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       ],
                     ),
                     child: ListTile(
-                      leading: Image.asset('assets/img/applePay.png', height: 35,),
+                      leading: Image.asset(
+                        'assets/img/applePay.png',
+                        height: 35,
+                      ),
                       title: Text(
                         'Apple Pay',
-                        style: TextStyle(color: Colors.black), // Change text color to white
+                        style: TextStyle(
+                            color: Colors.black), // Change text color to white
                       ),
                     ),
                   ),
                 ),
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   _processPayment("Google Pay", userBooking);
                 },
                 child: Container(
@@ -157,16 +181,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     ],
                   ),
                   child: ListTile(
-                    leading: Image.asset('assets/img/googlePay.png', height: 35,),
+                    leading: Image.asset(
+                      'assets/img/googlePay.png',
+                      height: 35,
+                    ),
                     title: Text(
                       'Google Pay',
-                      style: TextStyle(color: Colors.black), // Change text color to white
+                      style: TextStyle(
+                          color: Colors.black), // Change text color to white
                     ),
                   ),
                 ),
               ),
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   _processPayment("Credit Card", userBooking);
                 },
                 child: Container(
@@ -184,18 +212,26 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     ],
                   ),
                   child: ListTile(
-                    leading: Icon(Icons.credit_card, size: 35,),
+                    leading: Icon(
+                      Icons.credit_card,
+                      size: 35,
+                    ),
                     title: Text(
                       'Credit Card',
-                      style: TextStyle(color: Colors.black), // Change text color to white
+                      style: TextStyle(
+                          color: Colors.black), // Change text color to white
                     ),
                     trailing: Container(
                       width: 100,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(width:40,child: Image.asset("assets/img/visa.png")),
-                          Container(width:40,child: Image.asset("assets/img/mastercard.png"))
+                          Container(
+                              width: 40,
+                              child: Image.asset("assets/img/visa.png")),
+                          Container(
+                              width: 40,
+                              child: Image.asset("assets/img/mastercard.png"))
                         ],
                       ),
                     ),
@@ -240,7 +276,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   void _processPayment(String provider, UserBooking userBooking) {
-    print("Payment button pressed, "+ provider);
+    print("Payment button pressed, " + provider);
 
     // Create a map of booking data
     Map<String, dynamic> bookingData = {
@@ -262,14 +298,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
       'review': "",
     };
 
-    FirebaseFirestore.instance.collection('bookings').add(bookingData)
+    FirebaseFirestore.instance
+        .collection('bookings')
+        .add(bookingData)
         .then((value) {
       print('Booking added successfully!');
     }).catchError((error) {
       print('Failed to add booking: $error');
     });
-    
-    Navigator.of(context).popUntil(ModalRoute.withName(BottomNavBarScreen.pageName));
 
+    Navigator.of(context)
+        .popUntil(ModalRoute.withName(BottomNavBarScreen.pageName));
   }
 }

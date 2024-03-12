@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:looksbeyond/pages/Dashboard/widgets/ServicesList.dart';
@@ -38,7 +39,7 @@ class CategoryList extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           image: DecorationImage(
-                            image: NetworkImage(category['img']),
+                            image: CachedNetworkImageProvider(category['img']),
                             fit: BoxFit.cover,
                           ),
                         ),

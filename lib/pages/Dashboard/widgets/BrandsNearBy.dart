@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:looksbeyond/models/brand.dart';
 import 'package:looksbeyond/pages/BrandDisplay/BrandDisplayScreen.dart';
@@ -26,14 +27,20 @@ class _BrandsNearByState extends State<BrandsNearBy> {
             child: Container(
               child: Stack(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                    ),
-                    child: Image.network(
-                      widget.brand.imageUrl,
-                      fit: BoxFit.cover,
+                  CachedNetworkImage(
+                    imageUrl: widget.brand.imageUrl,
+                    placeholder: (context, url) =>
+                        Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    imageBuilder: (context, imageProvider) => ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                      ),
+                      child: Image(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                   Row(
@@ -61,8 +68,9 @@ class _BrandsNearByState extends State<BrandsNearBy> {
           Expanded(
             flex: 1,
             child: GestureDetector(
-              onTap: (){
-                Navigator.of(context).pushNamed(BrandDisplayScreen.pageName, arguments: widget.brand);
+              onTap: () {
+                Navigator.of(context).pushNamed(BrandDisplayScreen.pageName,
+                    arguments: widget.brand);
               },
               child: Container(
                 width: double.infinity,
@@ -70,8 +78,16 @@ class _BrandsNearByState extends State<BrandsNearBy> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.brand.name, style: TextStyle(decoration: TextDecoration.underline),),
-                    Text(widget.brand.address, style: TextStyle(color: Colors.grey, decoration: TextDecoration.underline),),
+                    Text(
+                      widget.brand.name,
+                      style: TextStyle(decoration: TextDecoration.underline),
+                    ),
+                    Text(
+                      widget.brand.address,
+                      style: TextStyle(
+                          color: Colors.grey,
+                          decoration: TextDecoration.underline),
+                    ),
                   ],
                 ),
               ),
