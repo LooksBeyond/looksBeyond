@@ -20,6 +20,7 @@ class UserBooking {
   final double subtotal;
   final double total;
   final String service;
+  final double platformPrice;
   String? review;
   double? taxes;
   String? paidThrough;
@@ -28,6 +29,7 @@ class UserBooking {
   UserBooking(
       {this.id,
       required this.userId,
+      required this.platformPrice,
       required this.isPaid,
       required this.timeSlot,
       required this.date,
@@ -51,6 +53,7 @@ class UserBooking {
 
     var userBooking = UserBooking(
       id: snapshot.id,
+      platformPrice: data['platformPrice'] ?? 0,
       userId: data['userId'] ?? '',
       title: data['title'] ?? '',
       dateTime: data['dateTime'] ?? '',

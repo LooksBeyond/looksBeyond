@@ -13,7 +13,7 @@ class RecentlyViewedSearch extends StatelessWidget {
       title: Text(client.name),
       subtitle: Text(client.address),
       leading: CircleAvatar(
-        backgroundImage: AssetImage(client.imageUrl),
+        backgroundImage: NetworkImage(client.imageUrl),
       ),
     );
   }

@@ -67,7 +67,7 @@ class _ServiceEmployeesState extends State<ServiceEmployees> {
                   children: [
                     RatingBar.builder(
                       itemSize: 20,
-                      initialRating: employee['avgRating'] as double,
+                      initialRating: double.parse(employee['avgRating'].toString()),
                       minRating: 1,
                       direction: Axis.horizontal,
                       allowHalfRating: true,

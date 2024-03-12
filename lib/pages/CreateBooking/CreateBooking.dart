@@ -42,7 +42,7 @@ class _CreateBookingState extends State<CreateBooking> {
     service = arguments['service'];
     _brandStream = _fetchBrand(employee.id);
     subtotal = employee['services'][service.id] +
-        (employee['services'][service.id] / 5);
+        (employee['services'][service.id] * 0.2);
     return Scaffold(
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -72,7 +72,8 @@ class _CreateBookingState extends State<CreateBooking> {
                               isPaid: false,
                               timeSlot: _selectedTimeslot!,
                               date: _selectedDate.toString(),
-                              subtotal: subtotal,
+                              subtotal: employee['services'][service.id],
+                              platformPrice: employee['services'][service.id] * 0.2,
                               total: 0,
                               service: service.id,
                               id: "",
@@ -271,7 +272,7 @@ class _CreateBookingState extends State<CreateBooking> {
                         children: [
                           RatingBar.builder(
                             itemSize: 20,
-                            initialRating: employee['avgRating'] as double,
+                            initialRating: double.parse(employee['avgRating'].toString()),
                             minRating: 1,
                             direction: Axis.horizontal,
                             allowHalfRating: true,
@@ -342,7 +343,7 @@ class _CreateBookingState extends State<CreateBooking> {
                                   ),
                                   Text(
                                     "\$" +
-                                        (employee['services'][service.id] / 20)
+                                        (employee['services'][service.id] * 0.2)
                                             .toString(),
                                     style: TextStyle(
                                         fontSize: 17,
@@ -366,135 +367,135 @@ class _CreateBookingState extends State<CreateBooking> {
   }
 }
 
-class BookingPage extends StatefulWidget {
-  const BookingPage({Key? key}) : super(key: key);
-
-  @override
-  _BookingPageState createState() => _BookingPageState();
-}
-
-class _BookingPageState extends State<BookingPage> {
-  String? _selectedBrand;
-  String? _selectedTimeslot;
-  DateTime _selectedDate = DateTime.now();
-
-  // Fetch brands from Firebase where the employees list contains the employee ID
-  Future<List<String>> _fetchBrands() async {
-    QuerySnapshot brandSnapshot = await FirebaseFirestore.instance
-        .collection('brands')
-        .where('employees', arrayContains: 'employeeId')
-        .get();
-
-    List<String> brands = [];
-    brandSnapshot.docs.forEach((doc) {
-      brands.add(doc['name']);
-    });
-    return brands;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Book Appointment'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Select Brand:'),
-            FutureBuilder<List<String>>(
-              future: _fetchBrands(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  return DropdownButton<String>(
-                    value: _selectedBrand,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedBrand = newValue;
-                      });
-                    },
-                    items: snapshot.data!
-                        .map<DropdownMenuItem<String>>(
-                            (String brand) => DropdownMenuItem<String>(
-                                  value: brand,
-                                  child: Text(brand),
-                                ))
-                        .toList(),
-                  );
-                }
-              },
-            ),
-            SizedBox(height: 20),
-            Text('Select Timeslot:'),
-            DropdownButton<String>(
-              value: _selectedTimeslot,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedTimeslot = newValue;
-                });
-              },
-              items: <String>['10:00 AM', '12:00 PM', '2:00 PM', '4:00 PM']
-                  .map<DropdownMenuItem<String>>(
-                      (String value) => DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          ))
-                  .toList(),
-            ),
-            SizedBox(height: 20),
-            Text('Select Date:'),
-            InkWell(
-              onTap: () {
-                showDatePicker(
-                  context: context,
-                  initialDate: _selectedDate,
-                  firstDate: DateTime.now(),
-                  lastDate: DateTime.now().add(Duration(days: 30)),
-                ).then((selectedDate) {
-                  if (selectedDate != null) {
-                    setState(() {
-                      _selectedDate = selectedDate;
-                    });
-                  }
-                });
-              },
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today),
-                  SizedBox(width: 10),
-                  Text(
-                    '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 20),
-            Text('Selected Employee:'),
-            ListTile(
-              leading: CircleAvatar(
-                // Placeholder image or actual employee image
-                child: Icon(Icons.person),
-              ),
-              title: Text('John Doe'), // Employee name
-              subtitle: Text('Hair Stylist'), // Employee role
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Handle booking logic
-              },
-              child: Text('Book Appointment'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// class BookingPage extends StatefulWidget {
+//   const BookingPage({Key? key}) : super(key: key);
+//
+//   @override
+//   _BookingPageState createState() => _BookingPageState();
+// }
+//
+// class _BookingPageState extends State<BookingPage> {
+//   String? _selectedBrand;
+//   String? _selectedTimeslot;
+//   DateTime _selectedDate = DateTime.now();
+//
+//   // Fetch brands from Firebase where the employees list contains the employee ID
+//   Future<List<String>> _fetchBrands() async {
+//     QuerySnapshot brandSnapshot = await FirebaseFirestore.instance
+//         .collection('brands')
+//         .where('employees', arrayContains: 'employeeId')
+//         .get();
+//
+//     List<String> brands = [];
+//     brandSnapshot.docs.forEach((doc) {
+//       brands.add(doc['name']);
+//     });
+//     return brands;
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Book Appointment'),
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Text('Select Brand:'),
+//             FutureBuilder<List<String>>(
+//               future: _fetchBrands(),
+//               builder: (context, snapshot) {
+//                 if (snapshot.connectionState == ConnectionState.waiting) {
+//                   return CircularProgressIndicator();
+//                 } else if (snapshot.hasError) {
+//                   return Text('Error: ${snapshot.error}');
+//                 } else {
+//                   return DropdownButton<String>(
+//                     value: _selectedBrand,
+//                     onChanged: (String? newValue) {
+//                       setState(() {
+//                         _selectedBrand = newValue;
+//                       });
+//                     },
+//                     items: snapshot.data!
+//                         .map<DropdownMenuItem<String>>(
+//                             (String brand) => DropdownMenuItem<String>(
+//                                   value: brand,
+//                                   child: Text(brand),
+//                                 ))
+//                         .toList(),
+//                   );
+//                 }
+//               },
+//             ),
+//             SizedBox(height: 20),
+//             Text('Select Timeslot:'),
+//             DropdownButton<String>(
+//               value: _selectedTimeslot,
+//               onChanged: (String? newValue) {
+//                 setState(() {
+//                   _selectedTimeslot = newValue;
+//                 });
+//               },
+//               items: <String>['10:00 AM', '12:00 PM', '2:00 PM', '4:00 PM']
+//                   .map<DropdownMenuItem<String>>(
+//                       (String value) => DropdownMenuItem<String>(
+//                             value: value,
+//                             child: Text(value),
+//                           ))
+//                   .toList(),
+//             ),
+//             SizedBox(height: 20),
+//             Text('Select Date:'),
+//             InkWell(
+//               onTap: () {
+//                 showDatePicker(
+//                   context: context,
+//                   initialDate: _selectedDate,
+//                   firstDate: DateTime.now(),
+//                   lastDate: DateTime.now().add(Duration(days: 30)),
+//                 ).then((selectedDate) {
+//                   if (selectedDate != null) {
+//                     setState(() {
+//                       _selectedDate = selectedDate;
+//                     });
+//                   }
+//                 });
+//               },
+//               child: Row(
+//                 children: [
+//                   Icon(Icons.calendar_today),
+//                   SizedBox(width: 10),
+//                   Text(
+//                     '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+//                     style: TextStyle(fontSize: 16),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//             SizedBox(height: 20),
+//             Text('Selected Employee:'),
+//             ListTile(
+//               leading: CircleAvatar(
+//                 // Placeholder image or actual employee image
+//                 child: Icon(Icons.person),
+//               ),
+//               title: Text('John Doe'), // Employee name
+//               subtitle: Text('Hair Stylist'), // Employee role
+//             ),
+//             SizedBox(height: 20),
+//             ElevatedButton(
+//               onPressed: () {
+//                 // Handle booking logic
+//               },
+//               child: Text('Book Appointment'),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

@@ -105,8 +105,8 @@ class _DashboardState extends State<Dashboard> {
       appBar: AppBar(
         title: SvgPicture.asset(
           'assets/img/login_logo_black.svg',
-          height: 50,
-          width: 100,
+          fit: BoxFit.contain,
+          width: 140,
         ),
       ),
       body: SingleChildScrollView(
@@ -154,22 +154,9 @@ class _DashboardState extends State<Dashboard> {
               SizedBox(height: 10.0),
               CategoryList(),
               SizedBox(height: 20.0),
-              // Text("Recently Viewed"),
-              // SizedBox(height: 10.0),
-              // SizedBox(
-              //   height: 100,
-              //   child: ListView.builder(
-              //     scrollDirection: Axis.horizontal,
-              //     itemCount: ClientList.length,
-              //     itemBuilder: (context, index) {
-              //       return RecentlyViewedDashboard(client: ClientList[index]);
-              //     },
-              //   ),
-              // ),
               SizedBox(height: 20.0),
               Text("Popular Brands"),
               SizedBox(height: 10.0),
-              //TODO: GET FROM FIREBASE
               FutureBuilder<QuerySnapshot>(
                 future: FirebaseFirestore.instance.collection('brands').get(),
                 builder: (context, snapshot) {
