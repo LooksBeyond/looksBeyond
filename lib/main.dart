@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:looksbeyond/firebase_options.dart';
 import 'package:looksbeyond/pages/Login/loginPage.dart';
 import 'package:looksbeyond/provider/AuthProvider.dart';
@@ -11,6 +12,7 @@ void main() async{
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  Stripe.publishableKey = "pk_test_51P07Xc2KIHEg32T5BJYwWDLLfVQDFWC9FxDAoAHbIWbHtEfZPQZlribf77K8LyYjidoHfCRWBMs7xsM14WM0OGvP00vdw67vEa";
   runApp(MyApp());
 }
 

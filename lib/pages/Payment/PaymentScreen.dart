@@ -1,10 +1,13 @@
+import 'dart:convert';
 import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart' as stripe;
 import 'package:looksbeyond/models/user_booking.dart';
 import 'package:looksbeyond/pages/Dashboard/dashboard.dart';
+import 'package:pay/pay.dart' as pay;
+import 'package:http/http.dart' as http;
 
 class PaymentScreen extends StatefulWidget {
   static const String pageName = "/paymentScreen";
@@ -21,12 +24,41 @@ class _PaymentScreenState extends State<PaymentScreen> {
   late DocumentSnapshot brand;
   late UserBooking userBooking;
   late double totalTaxes;
+  late String _applePaymentProfile;
+  late String _googlePaymentProfile;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
+
+  // "shippingMethods": [
+  //       {
+  //         "amount": ${userBooking.total.toString()},
+  //         "detail": "${userBooking.title}",
+  //         "identifier": "in_store_pickup",
+  //         "label": "In-Store Pickup"
+  //       },
+  //       {
+  //         "amount": "4.99",
+  //         "detail": "5-8 Business Days",
+  //         "identifier": "flat_rate_shipping_id_2",
+  //         "label": "UPS Ground"
+  //       },
+  //       {
+  //         "amount": "29.99",
+  //         "detail": "1-3 Business Days",
+  //         "identifier": "flat_rate_shipping_id_1",
+  //         "label": "FedEx Priority Mail"
+  //       }
+  //     ]
+  var _paymentItems = [
+    pay.PaymentItem(
+      label: 'Total',
+      amount: '0.01',
+      status: pay.PaymentItemStatus.final_price,
+    )
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +69,64 @@ class _PaymentScreenState extends State<PaymentScreen> {
     userBooking = arguments["userBooking"];
     brand = arguments["brand"];
     totalTaxes = userBooking.subtotal * 0.13;
+
+    _applePaymentProfile = """
+{
+  "provider": "apple_pay",
+  "data": {
+    "merchantIdentifier": "merchant.flutter.stripe.test",
+    "displayName": "${userBooking.title}",
+    "merchantCapabilities": ["3DS"],
+    "supportedNetworks": [
+      "amex",
+      "visa",
+      "discover",
+      "masterCard"
+    ],
+    "countryCode": "CA",
+    "currencyCode": "CAD"
+  }
+}
+""";
+
+    _googlePaymentProfile = """{
+  "provider": "google_pay",
+  "data": {
+    "environment": "TEST",
+    "apiVersion": 2,
+    "apiVersionMinor": 0,
+    "allowedPaymentMethods": [
+      {
+        "type": "CARD",
+        "tokenizationSpecification": {
+          "type": "PAYMENT_GATEWAY",
+          "parameters": {
+            "gateway": "stripe",
+            "stripe:version": "2020-08-27",
+            "stripe:publishableKey": "pk_test_51P07Xc2KIHEg32T5BJYwWDLLfVQDFWC9FxDAoAHbIWbHtEfZPQZlribf77K8LyYjidoHfCRWBMs7xsM14WM0OGvP00vdw67vEa"
+          }
+        },
+        "parameters": {
+          "allowedCardNetworks": ["VISA", "MASTERCARD"],
+          "allowedAuthMethods": ["PAN_ONLY", "CRYPTOGRAM_3DS"],
+          "billingAddressRequired": true,
+          "billingAddressParameters": {
+            "format": "FULL",
+            "phoneNumberRequired": true
+          }
+        }
+      }
+    ],
+    "merchantInfo": {
+      "merchantId": "01234567890123456789",
+      "merchantName": "LooksBeyond"
+    },
+    "transactionInfo": {
+      "countryCode": "CA",
+      "currencyCode": "CAD"
+    }
+  }
+}""";
 
     return Scaffold(
       appBar: AppBar(
@@ -128,71 +218,118 @@ class _PaymentScreenState extends State<PaymentScreen> {
               SizedBox(
                 height: 10,
               ),
-              if (!Platform.isAndroid)
-                GestureDetector(
-                  onTap: () {
-                    _processPayment("Apple Pay", userBooking);
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(5),
-                    margin: EdgeInsets.only(bottom: 15),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 7,
-                          offset: Offset(0, 3), // changes position of shadow
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      leading: Image.asset(
-                        'assets/img/applePay.png',
-                        height: 35,
-                      ),
-                      title: Text(
-                        'Apple Pay',
-                        style: TextStyle(
-                            color: Colors.black), // Change text color to white
-                      ),
-                    ),
+              if (Platform.isIOS)
+                // GestureDetector(
+                //   onTap: () {
+                //     _processPayment("Apple Pay", userBooking);
+                //   },
+                //   child: Container(
+                //     padding: EdgeInsets.all(5),
+                //     margin: EdgeInsets.only(bottom: 15),
+                //     decoration: BoxDecoration(
+                //       borderRadius: BorderRadius.circular(10),
+                //       color: Colors.white,
+                //       boxShadow: [
+                //         BoxShadow(
+                //           color: Colors.grey.withOpacity(0.5),
+                //           spreadRadius: 2,
+                //           blurRadius: 7,
+                //           offset: Offset(0, 3), // changes position of shadow
+                //         ),
+                //       ],
+                //     ),
+                //     child: ListTile(
+                //       leading: Image.asset(
+                //         'assets/img/applePay.png',
+                //         height: 35,
+                //       ),
+                //       title: Text(
+                //         'Apple Pay',
+                //         style: TextStyle(
+                //             color: Colors.black), // Change text color to white
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                pay.ApplePayButton(
+                  type: pay.ApplePayButtonType.plain,
+                  paymentConfiguration: pay.PaymentConfiguration.fromJsonString(
+                    _applePaymentProfile,
                   ),
+                  paymentItems: _paymentItems,
+                  height: pay.RawApplePayButton.minimumButtonHeight + 30,
+                  margin: const EdgeInsets.only(top: 15, bottom: 15),
+                  onPaymentResult: onApplePayResult,
+                  loadingIndicator: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                  // childOnError: Text('Apple Pay is not available in this device'),
+                  onError: (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                            'There was an error while trying to perform the payment'),
+                      ),
+                    );
+                  },
                 ),
-              GestureDetector(
-                onTap: () {
+              // GestureDetector(
+              //   onTap: () {
+              //     _processPayment("Google Pay", userBooking);
+              //   },
+              //   child: Container(
+              //     padding: EdgeInsets.all(5),
+              //     margin: EdgeInsets.only(bottom: 15),
+              //     decoration: BoxDecoration(
+              //       borderRadius: BorderRadius.circular(10),
+              //       color: Colors.white,
+              //       boxShadow: [
+              //         BoxShadow(
+              //           color: Colors.grey.withOpacity(0.5),
+              //           spreadRadius: 2,
+              //           blurRadius: 7,
+              //           offset: Offset(0, 3), // changes position of shadow
+              //         ),
+              //       ],
+              //     ),
+              //     child: ListTile(
+              //       leading: Image.asset(
+              //         'assets/img/googlePay.png',
+              //         height: 35,
+              //       ),
+              //       title: Text(
+              //         'Google Pay',
+              //         style: TextStyle(
+              //             color: Colors.black), // Change text color to white
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              pay.GooglePayButton(
+                type: pay.GooglePayButtonType.plain,
+                paymentConfiguration: pay.PaymentConfiguration.fromJsonString(
+                  _googlePaymentProfile,
+                ),
+                paymentItems: _paymentItems,
+                margin: const EdgeInsets.only(top: 15),
+                onPaymentResult: onGooglePayResult,
+                loadingIndicator: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                onPressed: () async {
                   _processPayment("Google Pay", userBooking);
                 },
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  margin: EdgeInsets.only(bottom: 15),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 2,
-                        blurRadius: 7,
-                        offset: Offset(0, 3), // changes position of shadow
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    leading: Image.asset(
-                      'assets/img/googlePay.png',
-                      height: 35,
+                // childOnError: Text('Google Pay is not available in this device'),
+                onError: (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                          'There was an error while trying to perform the payment'),
                     ),
-                    title: Text(
-                      'Google Pay',
-                      style: TextStyle(
-                          color: Colors.black), // Change text color to white
-                    ),
-                  ),
-                ),
+                  );
+                },
               ),
+              SizedBox(height: 15),
               GestureDetector(
                 onTap: () {
                   _processPayment("Credit Card", userBooking);
@@ -275,6 +412,40 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
+  Future<void> onGooglePayResult(paymentResult) async {
+    try {
+      debugPrint(paymentResult.toString());
+      // 2. fetch Intent Client Secret from backend
+      final response = await fetchPaymentIntentClientSecret();
+      final clientSecret = response['clientSecret'];
+      final token =
+          paymentResult['paymentMethodData']['tokenizationData']['token'];
+      final tokenJson = Map.castFrom(json.decode(token));
+      debugPrint(tokenJson.toString());
+
+      final params = stripe.PaymentMethodParams.cardFromToken(
+        paymentMethodData: stripe.PaymentMethodDataCardFromToken(
+          token: tokenJson['id'], // TODO extract the actual token
+        ),
+      );
+
+      // 3. Confirm Google pay payment method
+      await stripe.Stripe.instance.confirmPayment(
+        paymentIntentClientSecret: clientSecret,
+        data: params,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Google Pay payment succesfully completed')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
   void _processPayment(String provider, UserBooking userBooking) {
     print("Payment button pressed, " + provider);
 
@@ -309,5 +480,58 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     Navigator.of(context)
         .popUntil(ModalRoute.withName(BottomNavBarScreen.pageName));
+  }
+
+  Future<void> onApplePayResult(paymentResult) async {
+    try {
+      //debugPrint(paymentResult.toString());
+      // 1. Get Stripe token from payment result
+      final token =
+          await stripe.Stripe.instance.createApplePayToken(paymentResult);
+
+      // 2. fetch Intent Client Secret from backend
+      final response = await fetchPaymentIntentClientSecret();
+      final clientSecret = response['clientSecret'];
+
+      final params = stripe.PaymentMethodParams.cardFromToken(
+        paymentMethodData: stripe.PaymentMethodDataCardFromToken(
+          token: token.id,
+        ),
+      );
+
+      // 3. Confirm Apple pay payment method
+      await stripe.Stripe.instance.confirmPayment(
+        paymentIntentClientSecret: clientSecret,
+        data: params,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Apple Pay payment succesfully completed'),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+    _processPayment("Apple Pay", userBooking);
+
+  }
+
+  Future<Map<String, dynamic>> fetchPaymentIntentClientSecret() async {
+    final url = Uri.parse('https://api.stripe.com/v1/create-payment-intent');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'email': 'example@gmail.com',
+        'currency': 'usd',
+        'items': ['id-1'],
+        'request_three_d_secure': 'any',
+      }),
+    );
+    return json.decode(response.body);
   }
 }
