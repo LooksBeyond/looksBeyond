@@ -5,7 +5,7 @@ import 'package:looksbeyond/pages/BrandDisplay/BrandDisplayScreen.dart';
 
 class BrandsNearBy extends StatefulWidget {
   final Brand brand;
-  const BrandsNearBy({super.key, required this.brand});
+  const BrandsNearBy({Key? key, required this.brand}) : super(key: key);
 
   @override
   State<BrandsNearBy> createState() => _BrandsNearByState();
@@ -13,6 +13,7 @@ class BrandsNearBy extends StatefulWidget {
 
 class _BrandsNearByState extends State<BrandsNearBy> {
   bool isFav = false;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -27,40 +28,36 @@ class _BrandsNearByState extends State<BrandsNearBy> {
             child: Container(
               child: Stack(
                 children: [
-                  CachedNetworkImage(
-                    imageUrl: widget.brand.imageUrl,
-                    placeholder: (context, url) =>
-                        Center(child: CircularProgressIndicator()),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
-                    imageBuilder: (context, imageProvider) => ClipRRect(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                      ),
-                      child: Image(
-                        image: imageProvider,
-                        fit: BoxFit.cover,
-                      ),
+                  ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                    ),
+                    child: CachedNetworkImage(
+                      imageUrl: widget.brand.imageUrl,
+                      placeholder: (context, url) =>
+                          Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: isFav
-                            ? Icon(
-                                Icons.favorite,
-                                color: Colors.red,
-                              )
-                            : Icon(Icons.favorite_border, color: Colors.white),
-                        onPressed: () {
-                          setState(() {
-                            isFav = !isFav;
-                          });
-                        },
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: IconButton(
+                      icon: isFav
+                          ? Icon(
+                        Icons.favorite,
+                        color: Colors.red,
                       )
-                    ],
-                  )
+                          : Icon(Icons.favorite_border, color: Colors.white),
+                      onPressed: () {
+                        setState(() {
+                          isFav = !isFav;
+                        });
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -69,30 +66,38 @@ class _BrandsNearByState extends State<BrandsNearBy> {
             flex: 1,
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).pushNamed(BrandDisplayScreen.pageName,
-                    arguments: widget.brand);
+                Navigator.of(context).pushNamed(
+                  BrandDisplayScreen.pageName,
+                  arguments: widget.brand,
+                );
               },
               child: Container(
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 10),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       widget.brand.name,
-                      style: TextStyle(decoration: TextDecoration.underline),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
+                    SizedBox(height: 4),
                     Text(
                       widget.brand.address,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                          color: Colors.grey,
-                          decoration: TextDecoration.underline),
+                        color: Colors.grey,
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
