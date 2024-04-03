@@ -25,10 +25,11 @@ class BookingScreen extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('bookings')
             .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+            .orderBy('dateTime', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Error: Please try again later.'));
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -49,7 +50,8 @@ class BookingScreen extends StatelessWidget {
                   width: 60,
                   child: CachedNetworkImage(
                     imageUrl: booking.empImage!,
-                    placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                    placeholder: (context, url) =>
+                        Center(child: CircularProgressIndicator()),
                     errorWidget: (context, url, error) => Icon(Icons.error),
                     imageBuilder: (context, imageProvider) => CircleAvatar(
                       radius: 30,
@@ -66,7 +68,9 @@ class BookingScreen extends StatelessWidget {
                   ),
                 ),
                 subtitle: Text(
-                  booking.date.split(" ")[0].toString() + " at " + booking.timeSlot,
+                  booking.date.split(" ")[0].toString() +
+                      " at " +
+                      booking.timeSlot,
                   style: TextStyle(
                     fontSize: 14.0,
                     color: Colors.grey[700],
@@ -107,6 +111,4 @@ class BookingScreen extends StatelessWidget {
         return Colors.black;
     }
   }
-
-
 }
