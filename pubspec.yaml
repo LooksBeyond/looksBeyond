@@ -49,6 +49,10 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   flutter_stripe: ^10.1.1
   pay: ^2.0.0
+  geolocator: ^11.0.0
+  location: ^6.0.1
+  geocoding: ^3.0.0
+  pretty_qr_code: ^3.3.0
 
 
 dev_dependencies:
@@ -85,6 +89,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
+    - assets/
     - assets/img/
 
   # To add assets to your application, add an assets section, like this:

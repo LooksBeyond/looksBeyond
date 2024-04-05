@@ -68,7 +68,10 @@ class _BrandsNearByState extends State<BrandsNearBy> {
               onTap: () {
                 Navigator.of(context).pushNamed(
                   BrandDisplayScreen.pageName,
-                  arguments: widget.brand,
+                  arguments: {
+                    'brand': widget.brand,
+                    'service': null,
+                  },
                 );
               },
               child: Container(
@@ -79,6 +82,7 @@ class _BrandsNearByState extends State<BrandsNearBy> {
                   children: [
                     Text(
                       widget.brand.name,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline,

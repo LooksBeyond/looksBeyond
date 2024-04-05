@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:looksbeyond/models/user_booking.dart';
 import 'package:looksbeyond/pages/Feedback/feedbackScreen.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 class BookingDetails extends StatefulWidget {
   static const String pageName = '/booking_details';
@@ -30,6 +31,15 @@ class _BookingDetailsState extends State<BookingDetails> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (booking.status == Status.active) ...[
+                _buildQrCode(booking.id.toString()),
+                Center(
+                  child: Text("Show this QR Code when service is completed"),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+              ],
               _buildDetail('Booking ID', booking.id.toString()),
               _buildDetail('Title', booking.title),
               _buildDetail('Date & Time', booking.dateTime.toString()),
@@ -175,4 +185,21 @@ class BookingDetailItem extends StatelessWidget {
       ],
     );
   }
+}
+
+Widget _buildQrCode(String bookingId) {
+  return Padding(
+    padding: const EdgeInsets.all(12.0),
+    child: Center(
+      child: PrettyQrView.data(
+        data: bookingId,
+        errorCorrectLevel: QrErrorCorrectLevel.M,
+        decoration: const PrettyQrDecoration(
+          image: PrettyQrDecorationImage(
+            image: AssetImage('assets/icon_black.png'),
+          ),
+        ),
+      ),
+    ),
+  );
 }

@@ -22,7 +22,7 @@ class _CreateBookingState extends State<CreateBooking> {
   DateTime _selectedDate = DateTime.now().add(Duration(days: 1));
   late Map arguments;
   late DocumentSnapshot employee;
-  late DocumentSnapshot service;
+  late String serviceId;
   late Future<List<DocumentSnapshot>> _brandStream;
   late DocumentSnapshot brandSnapshot;
 
@@ -36,14 +36,22 @@ class _CreateBookingState extends State<CreateBooking> {
     return querySnapshot.docs;
   }
 
+  Future<DocumentSnapshot> _fetchService(String serviceId) async {
+    DocumentSnapshot serviceDoc = await FirebaseFirestore.instance
+        .collection("service")
+        .doc(serviceId)
+        .get();
+    return serviceDoc;
+  }
+
   @override
   Widget build(BuildContext context) {
     arguments = ModalRoute.of(context)!.settings.arguments as Map;
     employee = arguments['employee'];
-    service = arguments['service'];
+    serviceId = arguments['service'];
     _brandStream = _fetchBrand(employee.id);
-    subtotal = employee['services'][service.id] +
-        (employee['services'][service.id] * 0.2);
+    subtotal = employee['services'][serviceId] +
+        (employee['services'][serviceId] * 0.2);
     return Scaffold(
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -66,20 +74,23 @@ class _CreateBookingState extends State<CreateBooking> {
                   height: 40,
                   child: Center(
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async{
                         if (_selectedTimeslot != null) {
+                          DocumentSnapshot serviceSnapshot = await _fetchService(arguments['service']);
                           userBooking = UserBooking(
                               userId: FirebaseAuth.instance.currentUser!.uid,
                               isPaid: false,
                               timeSlot: _selectedTimeslot!,
                               date: _selectedDate.toString(),
-                              subtotal: double.parse(employee['services'][service.id].toString()),
-                              platformPrice: employee['services'][service.id] * 0.2,
+                              subtotal: double.parse(
+                                  employee['services'][serviceSnapshot.id].toString()),
+                              platformPrice:
+                                  employee['services'][serviceSnapshot.id] * 0.2,
                               total: 0,
-                              service: service.id,
+                              service: serviceSnapshot.id,
                               id: "",
                               title:
-                                  service['name'] + " by " + employee['name'],
+                              serviceSnapshot['name'] + " by " + employee['name'],
                               dateTime: DateTime.now().millisecondsSinceEpoch,
                               status: Status.active,
                               employee: employee['name'],
@@ -89,7 +100,7 @@ class _CreateBookingState extends State<CreateBooking> {
                             "userBooking": userBooking,
                             "employee": employee,
                             "brand": brandSnapshot,
-                            "service": service
+                            "service": serviceSnapshot
                           });
                         } else {
                           showDialog(
@@ -151,8 +162,10 @@ class _CreateBookingState extends State<CreateBooking> {
                               height: 300,
                               child: CachedNetworkImage(
                                 imageUrl: brand[0]['logo'],
-                                placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-                                errorWidget: (context, url, error) => Icon(Icons.error),
+                                placeholder: (context, url) =>
+                                    Center(child: CircularProgressIndicator()),
+                                errorWidget: (context, url, error) =>
+                                    Icon(Icons.error),
                                 imageBuilder: (context, imageProvider) => Image(
                                   image: imageProvider,
                                 ),
@@ -190,12 +203,12 @@ class _CreateBookingState extends State<CreateBooking> {
                       "Excited enough? Only some last steps for your booking to complete your service.",
                       style: TextStyle(fontSize: 17),
                     )),
-                    Text(
-                      "Get Ready for your " +
-                          service['name'] +
-                          ". It usually takes ${service['time']} minutes",
-                      style: TextStyle(fontSize: 17),
-                    ),
+                    // Text(
+                    //   "Get Ready for your " +
+                    //       service['name'] +
+                    //       ". It usually takes ${service['time']} minutes",
+                    //   style: TextStyle(fontSize: 17),
+                    // ),
                     SizedBox(height: 20),
                     _buildTimeSlotDropdown(),
                     SizedBox(height: 20),
@@ -245,9 +258,12 @@ class _CreateBookingState extends State<CreateBooking> {
                         height: 50,
                         child: CachedNetworkImage(
                           imageUrl: employee['img'],
-                          placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-                          errorWidget: (context, url, error) => Icon(Icons.error),
-                          imageBuilder: (context, imageProvider) => CircleAvatar(
+                          placeholder: (context, url) =>
+                              Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error),
+                          imageBuilder: (context, imageProvider) =>
+                              CircleAvatar(
                             radius: 25,
                             backgroundImage: imageProvider,
                           ),
@@ -258,7 +274,8 @@ class _CreateBookingState extends State<CreateBooking> {
                         children: [
                           RatingBar.builder(
                             itemSize: 20,
-                            initialRating: double.parse(employee['avgRating'].toString()),
+                            initialRating:
+                                double.parse(employee['avgRating'].toString()),
                             minRating: 1,
                             direction: Axis.horizontal,
                             allowHalfRating: true,
@@ -311,7 +328,7 @@ class _CreateBookingState extends State<CreateBooking> {
                                   ),
                                   Text(
                                     "\$" +
-                                        employee['services'][service.id]
+                                        employee['services'][serviceId]
                                             .toString(),
                                     style: TextStyle(
                                         fontSize: 17,
@@ -329,7 +346,7 @@ class _CreateBookingState extends State<CreateBooking> {
                                   ),
                                   Text(
                                     "\$" +
-                                        (employee['services'][service.id] * 0.2)
+                                        (employee['services'][serviceId] * 0.2)
                                             .toString(),
                                     style: TextStyle(
                                         fontSize: 17,
@@ -360,9 +377,7 @@ class _CreateBookingState extends State<CreateBooking> {
       },
     );
   }
-
 }
-
 
 class TimeSlotDropdown extends StatefulWidget {
   final ValueChanged<String?> onChanged;
@@ -404,17 +419,12 @@ class _TimeSlotDropdownState extends State<TimeSlotDropdown> {
             });
             widget.onChanged(newValue);
           },
-          items: <String>[
-            '10:00 AM',
-            '12:00 PM',
-            '2:00 PM',
-            '4:00 PM'
-          ]
+          items: <String>['10:00 AM', '12:00 PM', '2:00 PM', '4:00 PM']
               .map<DropdownMenuItem<String>>(
                   (String value) => DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              ))
+                        value: value,
+                        child: Text(value),
+                      ))
               .toList(),
         ),
       ],

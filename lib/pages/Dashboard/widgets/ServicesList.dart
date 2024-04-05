@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:looksbeyond/pages/ServiceEmployees/ServiceEmployees.dart';
+import 'package:looksbeyond/pages/ServiceBrands/ServiceBrands.dart';
 
 class ServicesList extends StatefulWidget {
   static const String pageName = "./servicesList";
@@ -18,7 +18,6 @@ class _ServicesListState extends State<ServicesList> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 

@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:looksbeyond/models/brand.dart';
 import 'package:looksbeyond/models/logged_in_user.dart';
 import 'package:looksbeyond/pages/Booking/booking.dart';
@@ -86,6 +88,7 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  String _currentCity = '';
   late AuthenticationProvider authenticationProvider;
   late LoggedInUser loggedInUser;
   List<Brand> ClientList = [];
@@ -94,9 +97,46 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    _getCurrentLocation();
     authenticationProvider =
         Provider.of<AuthenticationProvider>(context, listen: false);
     loggedInUser = authenticationProvider.loggedInUser!;
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      LocationPermission permission = await Geolocator.requestPermission();
+
+      // Check if permission is granted
+      if (permission == LocationPermission.denied) {
+        // Handle denied permission
+        print('Location permission denied by user.');
+        // Display message to the user explaining why location access is necessary
+        // and provide instructions on how to enable it in device settings.
+      } else if (permission == LocationPermission.deniedForever) {
+        // Handle permanently denied permission
+        print('Location permission permanently denied by user.');
+        // Display message to the user explaining why location access is necessary
+        // and provide instructions on how to enable it in device settings.
+      } else {
+        // Get the current position
+        Position position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high);
+
+        // Reverse geocode to get address details
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+            position.latitude, position.longitude);
+
+        // Extract city from the address
+        String city = placemarks.first.locality ?? '';
+
+        setState(() {
+          _currentCity = city;
+        });
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 
   @override
@@ -116,9 +156,21 @@ class _DashboardState extends State<Dashboard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 20.0),
-              Text(
-                "Hi, ${loggedInUser.name}",
-                style: TextStyle(fontSize: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Hi, ${loggedInUser.name}",
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Icon(Icons.location_on),
+                      Text(_currentCity),
+                    ],
+                  ),
+                ],
               ),
               SizedBox(height: 10.0),
               GestureDetector(
@@ -148,17 +200,18 @@ class _DashboardState extends State<Dashboard> {
                     ),
                   )),
 
-              /// TODO: FILTERS
               SizedBox(height: 20.0),
               Text("Categories"),
               SizedBox(height: 10.0),
               CategoryList(),
               SizedBox(height: 20.0),
-              SizedBox(height: 20.0),
-              Text("Popular Brands"),
+              Text("Brands in " + _currentCity),
               SizedBox(height: 10.0),
               FutureBuilder<QuerySnapshot>(
-                future: FirebaseFirestore.instance.collection('brands').get(),
+                future: FirebaseFirestore.instance
+                    .collection('brands')
+                    .where('city', isEqualTo: _currentCity ?? '')
+                    .get(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(

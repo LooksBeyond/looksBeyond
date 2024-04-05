@@ -10,7 +10,7 @@ import 'package:looksbeyond/pages/Feedback/feedbackScreen.dart';
 import 'package:looksbeyond/pages/Login/loginPage.dart';
 import 'package:looksbeyond/pages/Payment/PaymentScreen.dart';
 import 'package:looksbeyond/pages/Search/searchScreen.dart';
-import 'package:looksbeyond/pages/ServiceEmployees/ServiceEmployees.dart';
+import 'package:looksbeyond/pages/ServiceBrands/ServiceBrands.dart';
 import 'package:looksbeyond/pages/SplashScreen/SplashScreen.dart';
 
 Map<String, WidgetBuilder> appRoutes = {

@@ -48,8 +48,6 @@ class UserBooking {
 
   factory UserBooking.fromFireStore(DocumentSnapshot snapshot) {
     var data = snapshot.data()! as Map<String, dynamic>;
-    print("Booking data::");
-    print(data);
 
     var userBooking = UserBooking(
       id: snapshot.id,
