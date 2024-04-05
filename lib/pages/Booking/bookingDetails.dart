@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:looksbeyond/models/user_booking.dart';
@@ -14,12 +15,30 @@ class BookingDetails extends StatefulWidget {
 class _BookingDetailsState extends State<BookingDetails> {
   late UserBooking booking;
 
+  String formatDateTime(String value) {
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(int.parse(value));
+    final formattedDateTime =
+        '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+    return formattedDateTime;
+  }
+
+  String formatDate(String dateStr) {
+    final dateParts = dateStr.split(' ')[0].split('-');
+    final day = dateParts[2];
+    final month = dateParts[1];
+    final year = dateParts[0];
+    return '$day/$month/$year';
+  }
+
   @override
   Widget build(BuildContext context) {
     booking = ModalRoute.of(context)!.settings.arguments as UserBooking;
-
+    String formattedDateTime = formatDateTime(booking.dateTime.toString());
+    String formattedBookingDate = formatDate(booking.date);
     return Scaffold(
+      backgroundColor: Color(0xffececec),
       appBar: AppBar(
+        backgroundColor: Color(0xffececec),
         title: Text(
           'Booking Details',
           style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
@@ -29,71 +48,116 @@ class _BookingDetailsState extends State<BookingDetails> {
         padding: EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (booking.status == Status.active) ...[
-                _buildQrCode(booking.id.toString()),
-                Center(
-                  child: Text("Show this QR Code when service is completed"),
+              Container(
+                decoration: BoxDecoration(
+                    color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (booking.status == Status.active) ...[
+                      _buildQrCode(booking.id.toString()),
+                      Center(
+                        child: Text("Show this QR Code when service is completed"),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Divider(),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                    ],
+                    // _buildDetail('Booking ID', booking.id.toString()),
+                    FutureBuilder<DocumentSnapshot>(
+                      future: FirebaseFirestore.instance
+                          .collection('brands')
+                          .doc(booking.brand)
+                          .get(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        }
+                        if (snapshot.hasData) {
+                          var brandName = snapshot.data!['brand'];
+                          var brandLogo = snapshot.data!['logo'];
+                          var brandCity = snapshot.data!['city'];
+                          return Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CircleAvatar(
+                                  backgroundImage: CachedNetworkImageProvider(
+                                    brandLogo.toString(),
+                                  ),
+                                  radius: 35,
+                                ),
+                                SizedBox(
+                                  width: 15,
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        brandName,
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Text(
+                                        brandCity,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          );
+                        }
+                        return SizedBox.shrink();
+                      },
+                    ),
+
+                    Wrap(
+                      children: [
+                        _buildDetail('Title', booking.title, context),
+                        _buildDetail('Booked on', formattedDateTime, context),
+                        _buildDetail('Booking Date', formattedBookingDate, context),
+                        _buildDetail('Time Slot', booking.timeSlot, context),
+                        _buildDetail(
+                            'Price', "\$${booking.total.toString()}", context),
+                        FutureBuilder<DocumentSnapshot>(
+                          future: FirebaseFirestore.instance
+                              .collection('employee')
+                              .doc(booking.employee)
+                              .get(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return CircularProgressIndicator();
+                            }
+                            if (snapshot.hasData) {
+                              var employeeName = snapshot.data!['name'];
+                              return _buildDetail(
+                                  'Stylist', "$employeeName", context);
+                            }
+                            return SizedBox.shrink();
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                SizedBox(
-                  height: 20,
-                ),
-              ],
-              _buildDetail('Booking ID', booking.id.toString()),
-              _buildDetail('Title', booking.title),
-              _buildDetail('Date & Time', booking.dateTime.toString()),
-              SizedBox(height: 24),
-              Text(
-                'Additional Details:',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-              SizedBox(height: 16),
-              FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance
-                    .collection('employee')
-                    .doc(booking.employee)
-                    .get(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  }
-                  if (snapshot.hasData) {
-                    var employeeName = snapshot.data!['name'];
-                    return BookingDetailItem(
-                      title: "Stylist",
-                      value: employeeName,
-                    );
-                  }
-                  return SizedBox.shrink();
-                },
-              ),
-              FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance
-                    .collection('brands')
-                    .doc(booking.brand)
-                    .get(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  }
-                  if (snapshot.hasData) {
-                    var brandName = snapshot.data!['brand'];
-                    return BookingDetailItem(
-                      title: "Brand",
-                      value: brandName,
-                    );
-                  }
-                  return SizedBox.shrink();
-                },
-              ),
-              BookingDetailItem(
-                title: 'Price',
-                value: "\$${booking.total.toString()}",
               ),
               if (booking.status == Status.completed) ...[
                 SizedBox(height: 24),
@@ -120,6 +184,7 @@ class _BookingDetailsState extends State<BookingDetails> {
                   ),
                 ),
               ],
+
             ],
           ),
         ),
@@ -127,25 +192,39 @@ class _BookingDetailsState extends State<BookingDetails> {
     );
   }
 
-  Widget _buildDetail(String title, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
+  Widget _buildDetail(String title, String value, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.4,
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Color(0xffececec),
+          borderRadius: BorderRadius.circular(15),
         ),
-        SizedBox(height: 8),
-        Text(
-          value,
-          style: TextStyle(fontSize: 16.0, color: Colors.black87),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 15.0,
+                color: Color(0xff7c7c7c),
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 16.0,
+                color: Colors.black87,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 16),
+          ],
         ),
-        SizedBox(height: 16),
-      ],
+      ),
     );
   }
 
@@ -188,7 +267,8 @@ class BookingDetailItem extends StatelessWidget {
 }
 
 Widget _buildQrCode(String bookingId) {
-  return Padding(
+  return Container(
+    height: 230,
     padding: const EdgeInsets.all(12.0),
     child: Center(
       child: PrettyQrView.data(
