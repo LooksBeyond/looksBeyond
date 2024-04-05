@@ -20,7 +20,7 @@ class FeedbackPage extends StatefulWidget {
 
 class _FeedbackPageState extends State<FeedbackPage> {
   late AuthenticationProvider authenticationProvider;
-  double _rating=0.0;
+  double _rating = 0.0;
   TextEditingController _commentController = TextEditingController();
   late UserBooking booking;
   bool isReviewExist = false;
@@ -34,7 +34,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
   @override
   Widget build(BuildContext context) {
     booking = ModalRoute.of(context)!.settings.arguments as UserBooking;
-    authenticationProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+    authenticationProvider =
+        Provider.of<AuthenticationProvider>(context, listen: false);
     loggedInUser = authenticationProvider.loggedInUser!;
     return Scaffold(
       appBar: AppBar(
@@ -70,7 +71,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 children: [
                   Text(
                     'Service: ${booking.title}',
-                    style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                    style:
+                        TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10.0),
                   Text(
@@ -94,12 +96,21 @@ class _FeedbackPageState extends State<FeedbackPage> {
                     unratedColor: Colors.grey[300],
                     allowHalfRating: true,
                     ratingWidget: RatingWidget(
-                      full: Icon(Icons.star, color: Colors.yellow,),
-                      half: Icon(Icons.star_half, color: Colors.yellow,),
-                      empty: Icon(Icons.star_border, color: Colors.grey[300],),
+                      full: Icon(
+                        Icons.star,
+                        color: Colors.yellow,
+                      ),
+                      half: Icon(
+                        Icons.star_half,
+                        color: Colors.yellow,
+                      ),
+                      empty: Icon(
+                        Icons.star_border,
+                        color: Colors.grey[300],
+                      ),
                     ),
                     onRatingUpdate: (value) {
-                        _rating = value;
+                      _rating = value;
                     },
                     initialRating: _rating,
                     maxRating: 5,
@@ -133,7 +144,6 @@ class _FeedbackPageState extends State<FeedbackPage> {
       ),
     );
   }
-
 
   void checkReviewExistence() async {
     if (!mounted) {
@@ -176,6 +186,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
     double rating = _rating;
     String comment = _commentController.text;
 
+    String reviewDocId;
+
     if (isReviewExist) {
       // If review exists, update the existing review document
       QuerySnapshot reviewSnapshot = await FirebaseFirestore.instance
@@ -191,10 +203,12 @@ class _FeedbackPageState extends State<FeedbackPage> {
           'comment': comment,
           'timestamp': Timestamp.now(),
         });
+        reviewDocId = reviewDoc.id;
       }
     } else {
       // If review doesn't exist, create a new review document
-      await FirebaseFirestore.instance.collection('reviews').add({
+      DocumentReference newReviewRef =
+          await FirebaseFirestore.instance.collection('reviews').add({
         'userName': loggedInUser.name,
         'bookingId': booking.id,
         'rating': rating,
@@ -204,11 +218,18 @@ class _FeedbackPageState extends State<FeedbackPage> {
         'userId': FirebaseAuth.instance.currentUser!.uid,
         'brandId': booking.brand,
       });
+      reviewDocId = newReviewRef.id;
+      // Update booking document with review ID
+      FirebaseFirestore.instance.collection('bookings').doc(booking.id).update({
+        'review': reviewDocId,
+      });
     }
 
     // Calculate new avgRating and numberOfRatings
     FirebaseFirestore.instance.runTransaction((transaction) async {
-      DocumentReference employeeRef = FirebaseFirestore.instance.collection('employee').doc(booking.employee);
+      DocumentReference employeeRef = FirebaseFirestore.instance
+          .collection('employee')
+          .doc(booking.employee);
 
       DocumentSnapshot snapshot = await transaction.get(employeeRef);
 
@@ -216,8 +237,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
           ? int.parse(snapshot['numberOfRatings'].toString())
           : int.parse(snapshot['numberOfRatings'].toString()) + 1;
       double currentAvgRating = double.parse(snapshot['avgRating'].toString());
-      double newAvgRating = (currentAvgRating * (numberOfRatings - 1) + rating) /
-          numberOfRatings;
+      double newAvgRating =
+          (currentAvgRating * (numberOfRatings - 1) + rating) / numberOfRatings;
 
       // Update the employee document
       transaction.update(employeeRef, {
@@ -229,7 +250,6 @@ class _FeedbackPageState extends State<FeedbackPage> {
     // After submitting, you can navigate back to the previous screen.
     Navigator.pop(context);
   }
-
 
   @override
   void dispose() {
