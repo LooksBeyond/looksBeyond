@@ -86,6 +86,7 @@ class _BrandDisplayScreenState extends State<BrandDisplayScreen> {
       }
     }
 
+    double width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         title: Text(brand.name),
@@ -112,91 +113,50 @@ class _BrandDisplayScreenState extends State<BrandDisplayScreen> {
                       padding: const EdgeInsets.all(8.0),
                       child: Column(
                         children: [
+                          _buildDetail(Icons.person, "Owner", brand.owner, width),
+                          _buildDetail(Icons.location_on, "Address", brand.address, width),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      "Owner: ",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20),
-                                    ),
-                                    Text(
-                                      brand.owner,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    "Filter:",
-                                    style: TextStyle(
-                                        fontStyle: FontStyle.italic,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  IconButton(
-                                      tooltip: "Male",
-                                      onPressed: () {
-                                        setState(() {
-                                          showMale = !showMale;
-                                        });
-                                      },
-                                      icon: Icon(
-                                        Icons.male,
-                                        color: showMale
-                                            ? Colors.blue
-                                            : Colors.grey,
-                                        semanticLabel: "Male",
-                                      )),
-                                  IconButton(
-                                    tooltip: "Female",
-                                    onPressed: () {
-                                      setState(() {
-                                        showFemale = !showFemale;
-                                      });
-                                    },
-                                    icon: Icon(
-                                      Icons.female,
-                                      color:
-                                          showFemale ? Colors.red : Colors.grey,
-                                      semanticLabel: "Female",
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               Text(
-                                "Address: ",
+                                "Filter:",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
+                                    fontStyle: FontStyle.italic,
+                                    fontWeight: FontWeight.bold),
                               ),
-                              Expanded(
-                                  child: Text(
-                                brand.address,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 18,
+                              SizedBox(
+                                width: 10,
+                              ),
+                              IconButton(
+                                  tooltip: "Male",
+                                  onPressed: () {
+                                    setState(() {
+                                      showMale = !showMale;
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.male,
+                                    color: showMale
+                                        ? Colors.blue
+                                        : Colors.grey,
+                                    semanticLabel: "Male",
+                                  )),
+                              IconButton(
+                                tooltip: "Female",
+                                onPressed: () {
+                                  setState(() {
+                                    showFemale = !showFemale;
+                                  });
+                                },
+                                icon: Icon(
+                                  Icons.female,
+                                  color:
+                                  showFemale ? Colors.red : Colors.grey,
+                                  semanticLabel: "Female",
                                 ),
-                              )),
+                              )
                             ],
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -354,4 +314,56 @@ class EmployeeTile extends StatelessWidget {
       return SizedBox(); // Return empty container if not matching filter
     }
   }
+}
+
+
+Widget _buildDetail(IconData icon, String title, String value, double width) {
+  return Padding(
+    padding: const EdgeInsets.all(10.0),
+    child: Container(
+      width: width,
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Color(0xffececec),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                icon,
+                color: Color(0xff7c7c7c),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15.0,
+                  color: Color(0xff7c7c7c),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.only(left: 10.0),
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 16.0,
+                color: Colors.black87,
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          SizedBox(height: 16),
+        ],
+      ),
+    ),
+  );
 }

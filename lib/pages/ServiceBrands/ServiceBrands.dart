@@ -32,15 +32,12 @@ class _ServiceEmployeesState extends State<ServiceEmployees> {
 
     // Extract employee IDs from the query snapshot
     List<String> employeeIds = querySnapshot.docs.map((doc) => doc.id).toList();
-    print(employeeIds);
 
     // Fetch brand documents associated with the retrieved employee IDs
     var brandQuerySnapshot = await FirebaseFirestore.instance
         .collection('brands')
         .where('employees', arrayContainsAny: employeeIds)
         .get();
-
-    print(brandQuerySnapshot.docs);
 
     // Yield the list of brand documents as the result
     yield brandQuerySnapshot.docs;
@@ -61,7 +58,7 @@ class _ServiceEmployeesState extends State<ServiceEmployees> {
             return Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Coming Soon...💤'));
           }
           List<DocumentSnapshot>? brands = snapshot.data;
           if (brands == null || brands.isEmpty) {
