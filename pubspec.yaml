@@ -53,6 +53,7 @@ dependencies:
   location: ^6.0.1
   geocoding: ^3.0.0
   pretty_qr_code: ^3.3.0
+  google_fonts: 6.1.0
 
 
 dev_dependencies:
