@@ -85,7 +85,6 @@ class _BrandDisplayScreenState extends State<BrandDisplayScreen> {
         initialTabBarIndex = index;
       }
     }
-
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
@@ -113,8 +112,10 @@ class _BrandDisplayScreenState extends State<BrandDisplayScreen> {
                       padding: const EdgeInsets.all(8.0),
                       child: Column(
                         children: [
-                          _buildDetail(Icons.person, "Owner", brand.owner, width),
-                          _buildDetail(Icons.location_on, "Address", brand.address, width),
+                          _buildDetail(
+                              Icons.person, "Owner", brand.owner, width),
+                          _buildDetail(Icons.location_on, "Address",
+                              brand.address, width),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -136,9 +137,7 @@ class _BrandDisplayScreenState extends State<BrandDisplayScreen> {
                                   },
                                   icon: Icon(
                                     Icons.male,
-                                    color: showMale
-                                        ? Colors.blue
-                                        : Colors.grey,
+                                    color: showMale ? Colors.blue : Colors.grey,
                                     semanticLabel: "Male",
                                   )),
                               IconButton(
@@ -150,8 +149,7 @@ class _BrandDisplayScreenState extends State<BrandDisplayScreen> {
                                 },
                                 icon: Icon(
                                   Icons.female,
-                                  color:
-                                  showFemale ? Colors.red : Colors.grey,
+                                  color: showFemale ? Colors.red : Colors.grey,
                                   semanticLabel: "Female",
                                 ),
                               )
@@ -184,6 +182,7 @@ class _BrandDisplayScreenState extends State<BrandDisplayScreen> {
                                     service: service,
                                     showMale: showMale,
                                     showFemale: showFemale,
+                                    brandId: brand.id,
                                   );
                                 }).toList(),
                               ),
@@ -207,11 +206,13 @@ class ServiceEmployeesList extends StatelessWidget {
   final Map<String, dynamic> service;
   final bool showMale;
   final bool showFemale;
+  final String brandId;
 
   const ServiceEmployeesList({
     required this.service,
     required this.showMale,
     required this.showFemale,
+    required this.brandId,
   });
 
   @override
@@ -221,6 +222,7 @@ class ServiceEmployeesList extends StatelessWidget {
       stream: FirebaseFirestore.instance
           .collection('employee')
           .where('services.$serviceId', isNotEqualTo: "")
+          .where('brandId', isEqualTo: brandId)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -230,7 +232,7 @@ class ServiceEmployeesList extends StatelessWidget {
         }
 
         if (snapshot.hasError) {
-          print(snapshot.error);
+            print(snapshot.error);
           return Center(
             child: Text('Error: ${snapshot.error}'),
           );
@@ -244,11 +246,11 @@ class ServiceEmployeesList extends StatelessWidget {
 
         List<Widget> employeeTiles = snapshot.data!.docs
             .map((doc) => EmployeeTile(
-                  employee: doc,
-                  serviceId: serviceId,
-                  showMale: showMale,
-                  showFemale: showFemale,
-                ))
+          employee: doc,
+          serviceId: serviceId,
+          showMale: showMale,
+          showFemale: showFemale,
+        ))
             .toList();
 
         return ListView(
@@ -256,6 +258,7 @@ class ServiceEmployeesList extends StatelessWidget {
         );
       },
     );
+
   }
 }
 
@@ -315,7 +318,6 @@ class EmployeeTile extends StatelessWidget {
     }
   }
 }
-
 
 Widget _buildDetail(IconData icon, String title, String value, double width) {
   return Padding(
