@@ -54,6 +54,7 @@ dependencies:
   geocoding: ^3.0.0
   pretty_qr_code: ^3.3.0
   google_fonts: 6.1.0
+  carousel_slider: ^4.2.1
 
 
 dev_dependencies:

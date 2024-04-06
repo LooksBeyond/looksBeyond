@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -99,14 +100,46 @@ class _BrandDisplayScreenState extends State<BrandDisplayScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CachedNetworkImage(
-                      imageUrl: brand
-                          .imageUrl, // Use the imageUrl from the Brand object
-                      height: 300,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) =>
-                          CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
+                    // CachedNetworkImage(
+                    //   imageUrl: brand
+                    //       .imageUrl, // Use the imageUrl from the Brand object
+                    //   height: 300,
+                    //   fit: BoxFit.cover,
+                    //   placeholder: (context, url) =>
+                    //       CircularProgressIndicator(),
+                    //   errorWidget: (context, url, error) => Icon(Icons.error),
+                    // ),
+                    CarouselSlider(
+                      options: CarouselOptions(height: 400.0),
+                      items: [
+                        CachedNetworkImage(
+                          imageUrl: brand
+                              .imageUrl, // Use the imageUrl from the Brand object
+                          height: 300,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              CircularProgressIndicator(),
+                          errorWidget: (context, url, error) => Icon(Icons.error),
+                        ),
+                        CachedNetworkImage(
+                          imageUrl: brand
+                              .imageUrl, // Use the imageUrl from the Brand object
+                          height: 300,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              CircularProgressIndicator(),
+                          errorWidget: (context, url, error) => Icon(Icons.error),
+                        ),
+                        CachedNetworkImage(
+                          imageUrl: brand
+                              .imageUrl, // Use the imageUrl from the Brand object
+                          height: 300,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              CircularProgressIndicator(),
+                          errorWidget: (context, url, error) => Icon(Icons.error),
+                        ),
+                      ],
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
